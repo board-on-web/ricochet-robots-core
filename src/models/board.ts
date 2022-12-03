@@ -15,6 +15,10 @@ const WALL_MATERIALS = [
   SIDE_MATERIAL,
   TOP_MATERIAL
 ]
+const SIDE_TEMPLATE = new Mesh(
+  new BoxGeometry(1, WALL_HEIGHT, 0.1),
+  WALL_MATERIALS
+)
 const WALL_TEMPLATE = new Mesh(
   new BoxGeometry(WALL_WIDTH, WALL_HEIGHT, 0.1),
   WALL_MATERIALS
@@ -70,13 +74,6 @@ export class Board extends Group {
             wall.rotation.z = 90 * (Math.PI / 180)
             wall.position.set(j * CELL_SIZE + CELL_SIZE_HALF, i * CELL_SIZE, 0)
             acc.push(wall)
-
-            // fill right board walls
-            // if (isLastInRow) {
-            //   const wall = CORNER_TEMPLATE.clone()
-            //   wall.position.set(j * CELL_SIZE + CELL_SIZE_HALF, i * CELL_SIZE - CELL_SIZE_HALF, 0)
-            //   acc.push(wall)
-            // }
           }
 
           // bottom wall
@@ -84,13 +81,6 @@ export class Board extends Group {
             const wall = WALL_TEMPLATE.clone()
             wall.position.set(j * CELL_SIZE, i * CELL_SIZE + CELL_SIZE_HALF, 0)
             acc.push(wall)
-
-            // fill bottom board walls
-            // if (isLastInColumn) {
-            //   const wall = CORNER_TEMPLATE.clone()
-            //   wall.position.set(j * CELL_SIZE + CELL_SIZE_HALF, i * CELL_SIZE + CELL_SIZE_HALF, 0)
-            //   acc.push(wall)
-            // }
           }
 
           // left-top corner
@@ -124,12 +114,19 @@ export class Board extends Group {
           return acc
         }, [] as Array<Mesh>)
       })
+
+      // board frame
+      const bottomSide = SIDE_TEMPLATE.clone()
+      bottomSide.position.set(0.5 - CELL_SIZE_HALF + WALL_HEIGHT / 2, 1 - CELL_SIZE_HALF, 0)
+      const rightSide = SIDE_TEMPLATE.clone()
+      rightSide.rotation.z = 90 * (Math.PI / 180)
+      rightSide.position.set(1 - CELL_SIZE_HALF, 0.5 - CELL_SIZE_HALF - WALL_HEIGHT / 2, 0)
       
       const group = new Group()
       // centring group
       group.position.set(CELL_SIZE_HALF, -CELL_SIZE_HALF, 0)
       group.rotation.x = Math.PI
-      group.add(...walls)
+      group.add(...walls, bottomSide, rightSide)
 
       const planeGeometry = new PlaneGeometry()
       planeGeometry.translate(0.5, -0.5, 0)

@@ -1,11 +1,12 @@
-import { Color, Object3D } from "three";
+import { Color, Material, Object3D } from "three";
 import { Arrow, Arrows } from "../models/arrow";
-import { Board, BoardParts, BoardTokens } from "../models/board";
+import { Board, BoardDescription, BoardParts, BoardTokens } from "../models/board";
 import { Robot } from "../models/robot";
 import { loadStlModels } from "../utils/load-models";
 import { loadTextures } from "../utils/load-textures";
 
 export class GameController {
+  private boardDescription = new BoardDescription()
   private board: Board
   private arrows: Arrows
   private robots: Array<Robot>
@@ -57,16 +58,33 @@ export class GameController {
   }
 
   public selectRobot(robot: Robot) {
-    if (!this.robots.includes(robot)) {
-      throw new Error('Robot not found')
-    }
-
     this.selectedRobot = robot
+    this.selectedRobot.markSelect()
     this.arrows.moveTo({
       x: this.selectedRobot.position.x,
       y: this.selectedRobot.position.z,
     })
-    // TODO (2022.12.03): Reset arrows visible
+    this.arrows.visibleByDirection(
+      this.robotDirection(robot)
+    )
+  }
+
+  public unselectRobot() {
+    this.selectedRobot = null
+    this.arrows.hide()
+  }
+
+  public clickByRobot(robot: Robot) {
+    this.robots.forEach(it => it.markUnselect());
+    this.selectRobot(robot)
+  }
+
+  public clickByArrow(arrow: Arrow) {
+    console.log(arrow);
+  }
+
+  public clickMiss() {
+    this.unselectRobot()
   }
 
   public get models(): Array<Object3D> {
@@ -75,5 +93,17 @@ export class GameController {
       this.arrows,
       ...this.robots,
     ]
+  }
+
+  private robotDirection(robot: Robot): number {
+    const position = this.boardDescription.positionByCoords({
+      x: robot.position.x,
+      y: robot.position.z
+    })
+    const description = this.boardDescription.generate(
+      this.board,
+      this.robots.filter(it => it !== robot)
+    )
+    return description[position.y][position.x]
   }
 }

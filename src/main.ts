@@ -1,11 +1,10 @@
-import { Color, LoadingManager, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { LoadingManager, PerspectiveCamera, Raycaster, Scene, Vec2, WebGLRenderer } from 'three'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Tween from '@tweenjs/tween.js'
 import boardDescription from './assets/boards/board_1.json'
 import boardTokensDescription from './assets/boards/board_1_tokens.json'
-import { Board } from './models/board'
 import { loadTextures } from './utils/load-textures'
 import { loadStlModels } from './utils/load-models'
 import { Robot } from './models/robot'
@@ -22,6 +21,7 @@ const composer = new EffectComposer(renderer)
 const renderPass = new RenderPass(scene, camera)
 const controls = new OrbitControls(camera, renderer.domElement)
 const loadingManager = new LoadingManager()
+const raycaster = new Raycaster()
 
 const textures = await loadTextures(loadingManager)
 const models = await loadStlModels(loadingManager)
@@ -38,6 +38,34 @@ const gameController = new GameController(
   models,
   textures
 )
+// click listener
+renderer.domElement.addEventListener('click', (event: MouseEvent) => {
+  const bbox = renderer.domElement.getBoundingClientRect()
+  const pointer: Vec2 = {
+    x: ((event.clientX - bbox.left) / renderer.domElement.scrollWidth) * 2 - 1,
+    y: -((event.clientY - bbox.top) / renderer.domElement.scrollHeight) * 2 + 1
+  }
+
+  raycaster.setFromCamera(pointer, camera)
+  const intersects = raycaster.intersectObjects(scene.children)
+  
+  if (!intersects.length) {
+    return
+  }
+
+  // handle click by objects
+  let target
+
+  if ((target = intersects.find(it => it.object instanceof Arrow))) {
+    return gameController.clickByArrow(target.object as Arrow)
+  }
+
+  if ((target = intersects.find(it => it.object instanceof Robot))) {
+    return gameController.clickByRobot(target.object as Robot)
+  }
+
+  return gameController.clickMiss()
+})
 
 scene.add(
   ...gameController.models

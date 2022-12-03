@@ -186,7 +186,7 @@ export class Board extends Group {
   }
 }
 
-export class BoardMap {
+export class BoardDescription {
   public generate(board: Board, robots: Array<Robot>) {
     const wallsPositions: Array<Vec2> = []
     
@@ -269,10 +269,17 @@ export class BoardMap {
     })
   }
 
-  private coordsByPosition(position: Vec2): Vec2 {
+  public coordsByPosition(position: Vec2): Vec2 {
     return {
       x: CELL_SIZE * (position.x - 7.5),
       y: CELL_SIZE * (position.y - 7.5)
+    }
+  }
+
+  public positionByCoords(position: Vec2): Vec2 {
+    return {
+      x: position.x / CELL_SIZE + 7.5,
+      y: position.y / CELL_SIZE + 7.5
     }
   }
 }

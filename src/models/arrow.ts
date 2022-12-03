@@ -1,5 +1,6 @@
 import { Box3, ExtrudeGeometry, Group, Mesh, MeshBasicMaterial, Shape, Vec2 } from "three";
 
+const HEIGHT = 0.15
 const GAP = 0.2
 
 export class Arrow extends Mesh {
@@ -16,6 +17,7 @@ export class Arrow extends Mesh {
     )
     
     this.rotation.x = 90 * (Math.PI / 180)
+    this.position.y = HEIGHT
     this.scale.set(0.05, 0.05, 0.05)
     
     const box = new Box3().setFromObject(this)
@@ -34,8 +36,8 @@ export class Arrows extends Group {
       }
       targetArrow.rotation.z = index * 90 * (Math.PI / 180)
       
-      targetArrow.position.z = Math.abs((index & 1) - 1) * GAP * Math.sign(index - 1)
       targetArrow.position.x = Math.abs((index & 1)) * GAP * Math.sign(2 - index)
+      targetArrow.position.z = Math.abs((index & 1) - 1) * GAP * Math.sign(index - 1)
 
       return targetArrow
     })
@@ -51,7 +53,6 @@ export class Arrows extends Group {
 
   public visibleByDirection(direction: number) {
     this.children
-      .filter(it => it.userData.type === 'arrow')
       .forEach((it) => {
         it.visible = !Boolean(direction >> (3 - it.userData.direction) & 1)
       })

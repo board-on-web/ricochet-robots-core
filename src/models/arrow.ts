@@ -19,7 +19,7 @@ export class Arrow extends Mesh {
     
     this.rotation.x = 90 * (Math.PI / 180)
     this.position.y = HEIGHT
-    this.scale.set(0.054, 0.038, 0.05)
+    this.scale.set(0.06, 0.038, 0.05)
     
     const box = new Box3().setFromObject(this)
     this.position.y = box.max.y

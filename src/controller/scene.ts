@@ -14,7 +14,7 @@ export class SceneController extends Scene {
     }
 
     new Tween(this.background)
-      .to(color, 200)
+      .to(color, 300)
       .easing(Easing.Linear.None)
       .start()
   }

@@ -71,6 +71,7 @@ renderer.domElement.addEventListener('click', (event: MouseEvent) => {
     )
     // disable controls
     controls.enabled = false
+    controls.toInitialPosition()
     return gameController.clickByRobot(target.object as Robot)
   }
 

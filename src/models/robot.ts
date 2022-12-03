@@ -4,7 +4,7 @@ import { CELL_SIZE } from "./board";
 
 export class Robot extends Mesh {
   constructor(models: Awaited<ReturnType<typeof loadStlModels>>, color: Color) {
-    super(models['robot'].center(), new MeshBasicMaterial({ color, transparent: true, opacity: 0.8 }))
+    super(models['robot'].center(), new MeshBasicMaterial({ color, transparent: true, opacity: 0.7 }))
     this.name = 'robot'
 
     this.rotation.x = -90 * (Math.PI / 180)
@@ -23,10 +23,10 @@ export class Robot extends Mesh {
   }
 
   public markUnselect() {
-    (this.material as Material).opacity = 0.8
+    (this.material as Material).opacity = 0.7
   }
 
   public markSelect() {
-    (this.material as Material).opacity = 1
+    (this.material as Material).opacity = 0.9
   }
 }

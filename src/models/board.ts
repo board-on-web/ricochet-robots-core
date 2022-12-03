@@ -1,6 +1,7 @@
-import { BoxGeometry, Group, Material, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
+import { BoxGeometry, Group, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
 import boardDescription from '../assets/boards/board_1.json'
 import boardTokensDescription from '../assets/boards/board_1_tokens.json'
+import { loadTextures } from "../utils/load-textures";
 
 type BoardParts = typeof boardDescription
 type BoardTokens = typeof boardTokensDescription
@@ -32,22 +33,30 @@ const CORNER_TEMPLATE = new Mesh(
   new BoxGeometry(WALL_HEIGHT, WALL_HEIGHT, 0.1),
   WALL_MATERIALS
 )
-const TOKEN_GEOMETRY = new PlaneGeometry(CELL_SIZE * 0.8, CELL_SIZE * 0.8)
+const TOKEN_GEOMETRY = new PlaneGeometry(CELL_SIZE * 0.95, CELL_SIZE * 0.95)
 
 export class Board extends Group {
-  constructor(parts: BoardParts, tokens: BoardTokens, material: Material) {
+  constructor(parts: BoardParts, tokens: BoardTokens, textures: Awaited<ReturnType<typeof loadTextures>>) {
     super()
     
     this.name = 'board'
     this.rotation.x = -90 * (Math.PI / 180)
     // add walls on board
-    this.add(...this.walls(parts, tokens, material))
+    this.add(...this.walls(parts, tokens, textures))
   }
 
-  private walls(partsModel: BoardParts, tokensModel: BoardTokens, boardMaterial: Material) {
+  private walls(partsModel: BoardParts, tokensModel: BoardTokens, textures: Awaited<ReturnType<typeof loadTextures>>) {
     return partsModel.map((part, index) => {
       const tokens = tokensModel[index].map(token => {
-        const mesh = new Mesh(TOKEN_GEOMETRY, new MeshBasicMaterial({ color: 'red' }))
+        const mesh = new Mesh(
+          TOKEN_GEOMETRY,
+          // @ts-ignore token.token is valid
+          new MeshBasicMaterial({ map: textures[token.token], transparent: true })
+        )
+        mesh.name = token.token
+        mesh.userData = {
+          type: 'token',
+        }
         mesh.rotation.x = -180 * (Math.PI / 180)
         mesh.position.set(token.position[0] * CELL_SIZE, token.position[1] * CELL_SIZE, -0.001)
 
@@ -143,6 +152,11 @@ export class Board extends Group {
       rightSide.rotation.z = 90 * (Math.PI / 180)
       rightSide.position.set(1 - CELL_SIZE_HALF, 0.5 - CELL_SIZE_HALF - WALL_HEIGHT / 2, 0)
       
+      // rotate tokens to face
+      tokens.forEach(it => {
+        it.rotation.z = index * 90 * (Math.PI / 180) * -1
+      })
+
       const group = new Group()
       // centring group
       group.position.set(CELL_SIZE_HALF, -CELL_SIZE_HALF, 0)
@@ -156,7 +170,7 @@ export class Board extends Group {
 
       const planeGeometry = new PlaneGeometry()
       planeGeometry.translate(0.5, -0.5, 0)
-      const plane = new Mesh(planeGeometry, boardMaterial)
+      const plane = new Mesh(planeGeometry, new MeshBasicMaterial({ map: textures['board'] }))
       plane.name = `part_${index}`
       plane.rotation.z = index * 90 * (Math.PI / 180)
       plane.add(group)

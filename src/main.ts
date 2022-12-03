@@ -1,25 +1,27 @@
-import { LoadingManager, PerspectiveCamera, Raycaster, Scene, Vec2, WebGLRenderer } from 'three'
+import { Color, LoadingManager, Material, MeshBasicMaterial, PerspectiveCamera, Raycaster, Scene, Vec2, WebGLRenderer } from 'three'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import Tween from '@tweenjs/tween.js'
 import boardDescription from './assets/boards/board_1.json'
 import boardTokensDescription from './assets/boards/board_1_tokens.json'
+import robotsDescription from './assets/robots.json'
 import { loadTextures } from './utils/load-textures'
 import { loadStlModels } from './utils/load-models'
 import { Robot } from './models/robot'
 import { GameController } from './controller/game'
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader'
 import { Arrow } from './models/arrow'
+import { CameraController } from './controller/camera'
+import { SceneController } from './controller/scene'
 
-const scene = new Scene()
+const scene = new SceneController()
 const camera = new PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
 const renderer = new WebGLRenderer({
   antialias: true,
 })
 const composer = new EffectComposer(renderer)
 const renderPass = new RenderPass(scene, camera)
-const controls = new OrbitControls(camera, renderer.domElement)
+const controls = new CameraController(camera, renderer.domElement)
 const loadingManager = new LoadingManager()
 const raycaster = new Raycaster()
 
@@ -34,6 +36,7 @@ const arrow = await new SVGLoader(loadingManager)
 const gameController = new GameController(
   boardDescription,
   boardTokensDescription,
+  robotsDescription,
   arrow,
   models,
   textures
@@ -57,13 +60,22 @@ renderer.domElement.addEventListener('click', (event: MouseEvent) => {
   let target
 
   if ((target = intersects.find(it => it.object instanceof Arrow))) {
+    controls.enabled = false
     return gameController.clickByArrow(target.object as Arrow)
   }
 
   if ((target = intersects.find(it => it.object instanceof Robot))) {
+    // change background color
+    scene.changeBackground(
+      new Color((target.object as Robot).userData.tint)
+    )
+    // disable controls
+    controls.enabled = false
     return gameController.clickByRobot(target.object as Robot)
   }
 
+  scene.changeBackground()
+  controls.enabled = true
   return gameController.clickMiss()
 })
 
@@ -80,11 +92,6 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
 })
-// controls
-camera.position.y = 2.8
-// controls.enablePan = false
-// controls.enableZoom = false
-// controls.maxPolarAngle = 60 * (Math.PI / 180)
 // composer
 composer.addPass(renderPass)
 

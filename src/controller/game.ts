@@ -1,5 +1,6 @@
 import { Color, Object3D, Vec2 } from "three";
 import { Arrow, Arrows } from "../models/arrow";
+import robotsDescription from '../assets/robots.json'
 import { Board, BoardDescription, BoardParts, BoardTokens } from "../models/board";
 import { Robot } from "../models/robot";
 import { loadStlModels } from "../utils/load-models";
@@ -16,13 +17,14 @@ export class GameController {
   constructor(
     boardParts: BoardParts,
     boardTokens: BoardTokens,
+    robots: typeof robotsDescription,
     arrow: Arrow,
     models: Awaited<ReturnType<typeof loadStlModels>>,
     textures: Awaited<ReturnType<typeof loadTextures>>
   ) {
     this.arrows = new Arrows(arrow)
     this.board = this.makeBoard(boardParts, boardTokens, textures)
-    this.robots = this.makeRobots(models)
+    this.robots = this.makeRobots(robots, models)
     // hide after initial
     this.arrows.hide()
 
@@ -39,18 +41,13 @@ export class GameController {
     return board
   }
 
-  private makeRobots(models: Awaited<ReturnType<typeof loadStlModels>>): Array<Robot> {
-    const colors = [ new Color('yellow'), new Color('red'), new Color('green'), new Color('blue'), new Color('grey') ]
-    return colors.map((color, index) => {
-      const robot = new Robot(models, color)
+  private makeRobots(robots: typeof robotsDescription, models: Awaited<ReturnType<typeof loadStlModels>>): Array<Robot> {
+    return robots.map(it => {
+      const robot = new Robot(models, new Color(it.color))
       robot.userData = {
         type: 'robot',
-        // 0 - yellow
-        // 1 - red
-        // 2 - green
-        // 3 - blue
-        // 4 - grey
-        index,
+        name: it.name,
+        tint: it.tint
       }
 
       return robot
@@ -67,6 +64,7 @@ export class GameController {
   }
 
   public unselectRobot() {
+    this.robots.forEach(it => it.markUnselect());
     this.selectedRobot = null
     this.arrows.hide()
   }

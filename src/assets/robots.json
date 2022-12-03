@@ -1,0 +1,27 @@
+[
+  {
+    "name": "blue",
+    "color": "#03A9F4",
+    "tint": "#B3E5FC"
+  },
+  {
+    "name": "green",
+    "color": "#7CB342",
+    "tint": "#DCEDC8"
+  },
+  {
+    "name": "yellow",
+    "color": "#F9A825",
+    "tint": "#FFECB3"
+  },
+  {
+    "name": "red",
+    "color": "#E53935",
+    "tint": "#FFCDD2"
+  },
+  {
+    "name": "grey",
+    "color": "#78909C",
+    "tint": "#CFD8DC"
+  }
+]

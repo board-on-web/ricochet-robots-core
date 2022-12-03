@@ -2,6 +2,7 @@ import { BoxGeometry, Group, Mesh, MeshBasicMaterial, PlaneGeometry, Vec2, Vecto
 import boardDescription from '../assets/boards/board_1.json'
 import boardTokensDescription from '../assets/boards/board_1_tokens.json'
 import { loadTextures } from "../utils/load-textures";
+import { coordsByPosition } from "../utils/position";
 import { Robot } from "./robot";
 
 export type BoardParts = typeof boardDescription
@@ -204,7 +205,7 @@ export class BoardDescription {
 
     return Array.from({ length: BOARD_SIZE }, (_, y) => {
       return Array.from({ length: BOARD_SIZE }, (_, x) => {
-        const coords = this.coordsByPosition({ x, y })
+        const coords = coordsByPosition({ x, y })
         let value = 0
         
         const isLeft = x === 0
@@ -225,19 +226,19 @@ export class BoardDescription {
         
         const isRobot = robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
         const isRobotRight = (() => {
-          const coords = this.coordsByPosition({ x: x + 1, y })
+          const coords = coordsByPosition({ x: x + 1, y })
           return robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
         })()
         const isRobotBottom = (() => {
-          const coords = this.coordsByPosition({ x, y: y + 1 })
+          const coords = coordsByPosition({ x, y: y + 1 })
           return robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
         })()
         const isRobotLeft = (() => {
-          const coords = this.coordsByPosition({ x: x - 1, y })
+          const coords = coordsByPosition({ x: x - 1, y })
           return robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
         })()
         const isRobotTop = (() => {
-          const coords = this.coordsByPosition({ x, y: y - 1 })
+          const coords = coordsByPosition({ x, y: y - 1 })
           return robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
         })()
 
@@ -278,20 +279,6 @@ export class BoardDescription {
     }
 
     return next
-  }
-
-  public coordsByPosition(position: Vec2): Vec2 {
-    return {
-      x: CELL_SIZE * (position.x - 7.5),
-      y: CELL_SIZE * (position.y - 7.5)
-    }
-  }
-
-  public positionByCoords(position: Vec2): Vec2 {
-    return {
-      x: position.x / CELL_SIZE + 7.5,
-      y: position.y / CELL_SIZE + 7.5
-    }
   }
 
   private hasMoveByDirection(from: Vec2, direction: number, description: BoardParts[number]): boolean {

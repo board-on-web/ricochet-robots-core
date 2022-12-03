@@ -1,5 +1,7 @@
+import { Easing, Tween } from "@tweenjs/tween.js";
 import { Box3, Color, Material, Mesh, MeshBasicMaterial, Vec2 } from "three";
 import { loadStlModels } from "../utils/load-models";
+import { coordsByPosition } from "../utils/position";
 import { CELL_SIZE } from "./board";
 
 export class Robot extends Mesh {
@@ -18,8 +20,16 @@ export class Robot extends Mesh {
    * @param {Vec2} position x and y between [0; 15]
    */
   public moveTo(position: Vec2) {
-    this.position.x = CELL_SIZE * (position.x - 7.5)
-    this.position.z = CELL_SIZE * (position.y - 7.5)
+    const coords = coordsByPosition(position)
+    
+    return new Tween({ x: this.position.x, y: this.position.z })
+      .to(coords, 300)
+      .easing(Easing.Linear.None)
+      .onUpdate(({ x, y }) => {
+        this.position.x = x
+        this.position.z = y
+      })
+      .start()
   }
 
   public markUnselect() {

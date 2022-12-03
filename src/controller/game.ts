@@ -5,6 +5,7 @@ import { Board, BoardDescription, BoardParts, BoardTokens } from "../models/boar
 import { Robot } from "../models/robot";
 import { loadStlModels } from "../utils/load-models";
 import { loadTextures } from "../utils/load-textures";
+import { positionByCoords } from "../utils/position";
 
 export class GameController {
   private boardDescription = new BoardDescription()
@@ -80,8 +81,19 @@ export class GameController {
     }
 
     const routePosition = this.routeTo(this.selectedRobot, arrow)
-    this.selectedRobot.moveTo(routePosition)
-    this.selectRobot(this.selectedRobot)
+    this.selectedRobot
+      .moveTo(routePosition)
+      .onStart(() => {
+        this.arrows.hide()
+      })
+      .onComplete(() => {
+        if (this.selectedRobot) {
+          this.arrows.moveToRobot(this.selectedRobot)
+          this.arrows.visibleByDirection(
+            this.robotDirection(this.selectedRobot)
+          )
+        }
+      })
   }
 
   public clickMiss() {
@@ -97,7 +109,7 @@ export class GameController {
   }
 
   private robotDirection(robot: Robot): number {
-    const position = this.boardDescription.positionByCoords({
+    const position = positionByCoords({
       x: robot.position.x,
       y: robot.position.z
     })
@@ -109,7 +121,7 @@ export class GameController {
   }
 
   private routeTo(robot: Robot, arrow: Arrow): Vec2 {
-    const robotPosition = this.boardDescription.positionByCoords({
+    const robotPosition = positionByCoords({
       x: robot.position.x,
       y: robot.position.z,
     })

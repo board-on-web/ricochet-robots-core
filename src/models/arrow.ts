@@ -1,6 +1,6 @@
-import { Box3, ExtrudeGeometry, Group, Mesh, MeshBasicMaterial, Shape } from "three";
+import { Box3, ExtrudeGeometry, Group, Mesh, MeshBasicMaterial, Shape, Vec2 } from "three";
 
-const GAP = 0.18
+const GAP = 0.2
 
 export class Arrow extends Mesh {
   constructor(shape: Array<Shape>) {
@@ -8,7 +8,11 @@ export class Arrow extends Mesh {
       new ExtrudeGeometry(shape, {
         depth: 0.05,
       }),
-      new MeshBasicMaterial({ color: 'aqua' })
+      new MeshBasicMaterial({
+        color: '#F06292',
+        opacity: 0.7,
+        transparent: true,
+      })
     )
     
     this.rotation.x = 90 * (Math.PI / 180)
@@ -40,6 +44,11 @@ export class Arrows extends Group {
     this.add(...arrows)
   }
 
+  public moveTo(position: Vec2) {
+    this.position.x = position.x
+    this.position.z = position.y
+  }
+
   public visibleByDirection(direction: number) {
     this.children
       .filter(it => it.userData.type === 'arrow')
@@ -48,11 +57,11 @@ export class Arrows extends Group {
       })
   }
 
-  public showAll() {
+  public show() {
     this.visibleByDirection(0)
   }
 
-  public hideAll() {
+  public hide() {
     this.visibleByDirection(15)
   }
 }

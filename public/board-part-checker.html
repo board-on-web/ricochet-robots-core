@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Board part checker</title>
+    <title>Board checker</title>
     <style>
       body>.table {
         display: grid;
@@ -113,8 +113,8 @@
 
         const target = data[current]
 
-        for (let i = 0; i < 15; i++) {
-          for (let j = 0; j < 15; j++) {
+        for (let i = 0; i < 8; i++) {
+          for (let j = 0; j < 8; j++) {
             for (let k = 0; k < side.length; k++) {
               if ((target[i][j] >> k) & 1) {
                 cells[i * 8 + j].style[side[k]] = '5px solid black'

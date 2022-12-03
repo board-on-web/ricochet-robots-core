@@ -1,5 +1,5 @@
-import { Mesh } from "three";
+import { Group } from "three";
 
 export abstract class Controller {
-  constructor(public readonly model: Mesh) {}
+  constructor(public readonly model: Group) {}
 }

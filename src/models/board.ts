@@ -19,12 +19,13 @@ const WALL_TEMPLATE = new Mesh(
   new BoxGeometry(WALL_WIDTH, WALL_HEIGHT, 0.1),
   WALL_MATERIALS
 )
+const CORNER_TEMPLATE = new Mesh(
+  new BoxGeometry(WALL_HEIGHT, WALL_HEIGHT, 0.1),
+  WALL_MATERIALS
+)
 
 export class Board extends Group {
-  constructor(
-    parts: Array<Array<Array<number>>>,
-    material: Material = new MeshBasicMaterial({ color: 'yellow' })
-  ) {
+  constructor(parts: Array<Array<Array<number>>>, material: Material) {
     super()
     
     const items: Array<Mesh> = parts.map((part, index) => {
@@ -45,7 +46,8 @@ export class Board extends Group {
           }
 
           // FYI (2022.12.02): Only for first cell in row
-          if ((row >> 3) & 1 && isFirstInRow) {
+          // left wall
+          if (row >> 3 & 1 && isFirstInRow) {
             const wall = WALL_TEMPLATE.clone()
             wall.rotation.z = 90 * (Math.PI / 180)
             wall.position.set(j * CELL_SIZE - CELL_SIZE_HALF, i * CELL_SIZE, 0)
@@ -53,22 +55,53 @@ export class Board extends Group {
           }
 
           // FYI (2022.12.02): Only for first cell in column
-          if ((row >> 2) & 1 && isFirstInColumn) {
+          // top wall
+          if (row >> 2 & 1 && isFirstInColumn) {
             const wall = WALL_TEMPLATE.clone()
             wall.position.set(j * CELL_SIZE, i * CELL_SIZE - CELL_SIZE_HALF, 0)
             acc.push(wall)
           }
 
-          if ((row >> 1) & 1) {
+          // right wall
+          if (row >> 1 & 1) {
             const wall = WALL_TEMPLATE.clone()
             wall.rotation.z = 90 * (Math.PI / 180)
             wall.position.set(j * CELL_SIZE + CELL_SIZE_HALF, i * CELL_SIZE, 0)
             acc.push(wall)
           }
 
-          if ((row >> 0) & 1) {
+          // bottom wall
+          if (row >> 0 & 1) {
             const wall = WALL_TEMPLATE.clone()
             wall.position.set(j * CELL_SIZE, i * CELL_SIZE + CELL_SIZE_HALF, 0)
+            acc.push(wall)
+          }
+
+          // left-top corner
+          if ((row >> 2 & 3) === 3) {
+            const wall = CORNER_TEMPLATE.clone()
+            wall.position.set(j * CELL_SIZE - CELL_SIZE_HALF, i * CELL_SIZE - CELL_SIZE_HALF, 0)
+            acc.push(wall)
+          }
+
+          // right-top corner
+          if ((row >> 1 & 3) === 3) {
+            const wall = CORNER_TEMPLATE.clone()
+            wall.position.set(j * CELL_SIZE + CELL_SIZE_HALF, i * CELL_SIZE - CELL_SIZE_HALF, 0)
+            acc.push(wall)
+          }
+
+          // right-bottom corner
+          if ((row >> 0 & 3) === 3) {
+            const wall = CORNER_TEMPLATE.clone()
+            wall.position.set(j * CELL_SIZE + CELL_SIZE_HALF, i * CELL_SIZE + CELL_SIZE_HALF, 0)
+            acc.push(wall)
+          }
+
+          // left-bottom corner
+          if ((row >> 3 & 1) & (row >> 0 & 1)) {
+            const wall = CORNER_TEMPLATE.clone()
+            wall.position.set(j * CELL_SIZE - CELL_SIZE_HALF, i * CELL_SIZE + CELL_SIZE_HALF, 0)
             acc.push(wall)
           }
 

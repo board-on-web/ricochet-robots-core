@@ -1,4 +1,9 @@
 import { BoxGeometry, Group, Material, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
+import boardDescription from '../assets/boards/board_1.json'
+import boardTokensDescription from '../assets/boards/board_1_tokens.json'
+
+type BoardParts = typeof boardDescription
+type BoardTokens = typeof boardTokensDescription
 
 const CELL_COUNT = 8
 const CELL_SIZE = 1 / CELL_COUNT
@@ -27,12 +32,28 @@ const CORNER_TEMPLATE = new Mesh(
   new BoxGeometry(WALL_HEIGHT, WALL_HEIGHT, 0.1),
   WALL_MATERIALS
 )
+const TOKEN_GEOMETRY = new PlaneGeometry(CELL_SIZE * 0.8, CELL_SIZE * 0.8)
 
 export class Board extends Group {
-  constructor(parts: Array<Array<Array<number>>>, material: Material) {
+  constructor(parts: BoardParts, tokens: BoardTokens, material: Material) {
     super()
     
-    const items: Array<Mesh> = parts.map((part, index) => {
+    this.name = 'board'
+    this.rotation.x = -90 * (Math.PI / 180)
+    // add walls on board
+    this.add(...this.walls(parts, tokens, material))
+  }
+
+  private walls(partsModel: BoardParts, tokensModel: BoardTokens, boardMaterial: Material) {
+    return partsModel.map((part, index) => {
+      const tokens = tokensModel[index].map(token => {
+        const mesh = new Mesh(TOKEN_GEOMETRY, new MeshBasicMaterial({ color: 'red' }))
+        mesh.rotation.x = -180 * (Math.PI / 180)
+        mesh.position.set(token.position[0] * CELL_SIZE, token.position[1] * CELL_SIZE, -0.001)
+
+        return mesh
+      })
+
       const walls = part.flatMap((column, i, { length: cl }): Array<Mesh> => {
         return column.reduce((acc, item, j, { length: rl }): Array<Mesh> => {
           const isFirstInColumn = i === 0
@@ -126,20 +147,21 @@ export class Board extends Group {
       // centring group
       group.position.set(CELL_SIZE_HALF, -CELL_SIZE_HALF, 0)
       group.rotation.x = Math.PI
-      group.add(...walls, bottomSide, rightSide)
+      group.add(
+        ...walls,
+        bottomSide,
+        rightSide,
+        ...tokens,
+      )
 
       const planeGeometry = new PlaneGeometry()
       planeGeometry.translate(0.5, -0.5, 0)
-      const plane = new Mesh(planeGeometry, material)
+      const plane = new Mesh(planeGeometry, boardMaterial)
       plane.name = `part_${index}`
       plane.rotation.z = index * 90 * (Math.PI / 180)
       plane.add(group)
 
       return plane
     })
-
-    this.name = 'board'
-    this.add(...items)
-    this.rotation.x = -90 * (Math.PI / 180)
   }
 }

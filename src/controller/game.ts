@@ -1,4 +1,4 @@
-import { Color, Material, Object3D } from "three";
+import { Color, Object3D, Vec2 } from "three";
 import { Arrow, Arrows } from "../models/arrow";
 import { Board, BoardDescription, BoardParts, BoardTokens } from "../models/board";
 import { Robot } from "../models/robot";
@@ -60,10 +60,7 @@ export class GameController {
   public selectRobot(robot: Robot) {
     this.selectedRobot = robot
     this.selectedRobot.markSelect()
-    this.arrows.moveTo({
-      x: this.selectedRobot.position.x,
-      y: this.selectedRobot.position.z,
-    })
+    this.arrows.moveToRobot(this.selectedRobot)
     this.arrows.visibleByDirection(
       this.robotDirection(robot)
     )
@@ -79,8 +76,14 @@ export class GameController {
     this.selectRobot(robot)
   }
 
-  public clickByArrow(arrow: Arrow) {
-    console.log(arrow);
+  public clickByArrow(arrow: Arrow) {    
+    if (!this.selectedRobot) {
+      return
+    }
+
+    const routePosition = this.routeTo(this.selectedRobot, arrow)
+    this.selectedRobot.moveTo(routePosition)
+    this.selectRobot(this.selectedRobot)
   }
 
   public clickMiss() {
@@ -105,5 +108,21 @@ export class GameController {
       this.robots.filter(it => it !== robot)
     )
     return description[position.y][position.x]
+  }
+
+  private routeTo(robot: Robot, arrow: Arrow): Vec2 {
+    const robotPosition = this.boardDescription.positionByCoords({
+      x: robot.position.x,
+      y: robot.position.z,
+    })
+    const direction = arrow.userData.direction
+    const description = this.boardDescription.generate(
+      this.board,
+      this.robots.filter(it => it !== robot)
+    )
+
+    return this.boardDescription.calcRouteToByDirection(
+      robotPosition, direction, description
+    )
   }
 }

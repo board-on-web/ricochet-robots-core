@@ -1,4 +1,5 @@
 import { Box3, ExtrudeGeometry, Group, Mesh, MeshBasicMaterial, Shape, Vec2 } from "three";
+import { Robot } from "./robot";
 
 const HEIGHT = 0.15
 const GAP = 0.2
@@ -46,16 +47,15 @@ export class Arrows extends Group {
     this.add(...arrows)
   }
 
-  public moveTo(position: Vec2) {
-    this.position.x = position.x
-    this.position.z = position.y
+  public moveToRobot(robot: Robot) {
+    this.position.x = robot.position.x
+    this.position.z = robot.position.z
   }
 
   public visibleByDirection(direction: number) {
-    this.children
-      .forEach((it) => {
-        it.visible = !Boolean(direction >> (3 - it.userData.direction) & 1)
-      })
+    this.children.forEach((it) => {
+      it.visible = !Boolean(direction >> (3 - it.userData.direction) & 1)
+    })
   }
 
   public show() {

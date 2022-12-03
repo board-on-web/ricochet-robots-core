@@ -1,4 +1,4 @@
-import { BoxGeometry, Group, Mesh, MeshBasicMaterial, Object3D, PlaneGeometry, Vec2, Vector3 } from "three";
+import { BoxGeometry, Group, Mesh, MeshBasicMaterial, PlaneGeometry, Vec2, Vector3 } from "three";
 import boardDescription from '../assets/boards/board_1.json'
 import boardTokensDescription from '../assets/boards/board_1_tokens.json'
 import { loadTextures } from "../utils/load-textures";
@@ -7,7 +7,8 @@ import { Robot } from "./robot";
 export type BoardParts = typeof boardDescription
 export type BoardTokens = typeof boardTokensDescription
 
-const BOARD_SIZE = 16
+export const BOARD_SIZE = 16
+export const BOARD_CELL_SIZE = 1 / BOARD_SIZE
 export const CELL_COUNT = 8
 export const CELL_SIZE = 1 / CELL_COUNT
 export const CELL_SIZE_HALF = CELL_SIZE / 2
@@ -187,7 +188,7 @@ export class Board extends Group {
 }
 
 export class BoardDescription {
-  public generate(board: Board, robots: Array<Robot>) {
+  public generate(board: Board, robots: Array<Robot>): BoardParts[number] {
     const wallsPositions: Array<Vec2> = []
     
     board.traverse((object) => {
@@ -269,6 +270,16 @@ export class BoardDescription {
     })
   }
 
+  public calcRouteToByDirection(from: Vec2, direction: number, description: BoardParts[number]): Vec2 {
+    let next: Vec2 = { ...from }
+
+    while (this.hasMoveByDirection(next, direction, description)) {
+      next = this.moveStepByDirection(next, direction)
+    }
+
+    return next
+  }
+
   public coordsByPosition(position: Vec2): Vec2 {
     return {
       x: CELL_SIZE * (position.x - 7.5),
@@ -281,5 +292,33 @@ export class BoardDescription {
       x: position.x / CELL_SIZE + 7.5,
       y: position.y / CELL_SIZE + 7.5
     }
+  }
+
+  private hasMoveByDirection(from: Vec2, direction: number, description: BoardParts[number]): boolean {
+    return !Boolean(description[from.y][from.x] >> (3 - direction) & 1)
+  }
+
+  private moveStepByDirection(from: Vec2, direction: number): Vec2 {
+    const next = { ...from }
+
+    switch (direction) {
+      case 0:
+        next.x -= 1
+        break
+      
+      case 1:
+        next.y -= 1
+        break
+
+      case 2:
+        next.x += 1
+        break
+
+      case 3:
+        next.y += 1
+        break
+    }
+
+    return next
   }
 }

@@ -1,6 +1,6 @@
 import { Color, Object3D } from "three";
 import { Arrow, Arrows } from "../models/arrow";
-import { Board, BoardMap, BoardParts, BoardTokens } from "../models/board";
+import { Board, BoardParts, BoardTokens } from "../models/board";
 import { Robot } from "../models/robot";
 import { loadStlModels } from "../utils/load-models";
 import { loadTextures } from "../utils/load-textures";
@@ -31,8 +31,6 @@ export class GameController {
         y: Math.round((Math.random() * 15))
       })
     })
-
-    console.log(new BoardMap().generate(this.board, this.robots));
   }
 
   private makeBoard(parts: BoardParts, tokens: BoardTokens, textures: Awaited<ReturnType<typeof loadTextures>>): Board {

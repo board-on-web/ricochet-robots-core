@@ -205,41 +205,62 @@ export class BoardMap {
       return Array.from({ length: BOARD_SIZE }, (_, x) => {
         const coords = this.coordsByPosition({ x, y })
         let value = 0
+        
         const isLeft = x === 0
         const isTop = y === 0
         const isRight = x === BOARD_SIZE - 1
         const isBottom = y === BOARD_SIZE - 1
+
+        const isCenter = [7, 8].includes(x) && [7, 8].includes(y)
         const isCenterRight = x === 6 && [7, 8].includes(y)
         const isCenterBottom = y === 6 && [7, 8].includes(x)
         const isCenterLeft = x === 9 && [7, 8].includes(y)
         const isCenterTop = y === 9 && [7, 8].includes(x)
+
         const hasLeftWall = wallsPositions.find(it => it.x === coords.x - CELL_SIZE_HALF && it.y === coords.y)
         const hasTopWall = wallsPositions.find(it => it.x === coords.x && it.y === coords.y - CELL_SIZE_HALF)
         const hasRightWall = wallsPositions.find(it => it.x === coords.x + CELL_SIZE_HALF && it.y === coords.y)
         const hasBottomWall = wallsPositions.find(it => it.x === coords.x && it.y === coords.y + CELL_SIZE_HALF)
-        const isCenter = [7, 8].includes(x) && [7, 8].includes(y)
+        
+        const isRobot = robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
+        const isRobotRight = (() => {
+          const coords = this.coordsByPosition({ x: x + 1, y })
+          return robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
+        })()
+        const isRobotBottom = (() => {
+          const coords = this.coordsByPosition({ x, y: y + 1 })
+          return robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
+        })()
+        const isRobotLeft = (() => {
+          const coords = this.coordsByPosition({ x: x - 1, y })
+          return robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
+        })()
+        const isRobotTop = (() => {
+          const coords = this.coordsByPosition({ x, y: y - 1 })
+          return robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
+        })()
 
-        if (isCenter) {
+        if (isCenter || isRobot) {
           return value = 15
         }
 
         // left
-        if (isLeft || isCenterLeft || hasLeftWall) {
+        if (isLeft || isCenterLeft || isRobotLeft || hasLeftWall) {
           value += 8
         }
 
         // top
-        if (isTop || isCenterTop || hasTopWall) {
+        if (isTop || isCenterTop || isRobotTop || hasTopWall) {
           value += 4
         }
 
         // right
-        if (isRight || isCenterRight || hasRightWall) {
+        if (isRight || isCenterRight || isRobotRight || hasRightWall) {
           value += 2
         }
 
         // bottom
-        if (isBottom || isCenterBottom || hasBottomWall) {
+        if (isBottom || isCenterBottom || isRobotBottom || hasBottomWall) {
           value += 1
         }
 

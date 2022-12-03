@@ -3,12 +3,12 @@ import boardDescription from '../assets/boards/board_1.json'
 import boardTokensDescription from '../assets/boards/board_1_tokens.json'
 import { loadTextures } from "../utils/load-textures";
 
-type BoardParts = typeof boardDescription
-type BoardTokens = typeof boardTokensDescription
+export type BoardParts = typeof boardDescription
+export type BoardTokens = typeof boardTokensDescription
 
-const CELL_COUNT = 8
-const CELL_SIZE = 1 / CELL_COUNT
-const CELL_SIZE_HALF = CELL_SIZE / 2
+export const CELL_COUNT = 8
+export const CELL_SIZE = 1 / CELL_COUNT
+export const CELL_SIZE_HALF = CELL_SIZE / 2
 const WALL_HEIGHT = 0.015
 const WALL_WIDTH = CELL_SIZE - WALL_HEIGHT
 const SIDE_MATERIAL = new MeshBasicMaterial({ color: '#B0BEC5' })

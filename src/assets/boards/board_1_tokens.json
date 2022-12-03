@@ -5,7 +5,7 @@
       "position": [0, 2]
     },
     {
-      "token": "blue-star",
+      "token": "blue-cross",
       "position": [5, 3]
     },
     {
@@ -35,7 +35,7 @@
       "position": [6, 4]
     },
     {
-      "token": "red-star",
+      "token": "red-cross",
       "position": [5, 6]
     }
   ],
@@ -53,13 +53,13 @@
       "position": [6, 5]
     },
     {
-      "token": "yellow-star",
+      "token": "yellow-cross",
       "position": [1, 6]
     }
   ],
   [
     {
-      "token": "green-star",
+      "token": "green-cross",
       "position": [6, 1]
     },
     {

@@ -1,0 +1,20 @@
+{
+  "board": "/background.svg",
+  "yellow-planet": "/tokens/yellow-planet.png",
+  "yellow-cross": "/tokens/yellow-cross.png",
+  "yellow-gear": "/tokens/yellow-gear.png",
+  "yellow-moon ": "/tokens/yellow-moon.png",
+  "blue-planet": "/tokens/blue-planet.png",
+  "blue-cross": "/tokens/blue-cross.png",
+  "blue-gear": "/tokens/blue-gear.png",
+  "blue-moon": "/tokens/blue-moon.png",
+  "green-planet": "/tokens/green-planet.png",
+  "green-cross": "/tokens/green-cross.png",
+  "green-gear": "/tokens/green-gear.png",
+  "green-moon": "/tokens/green-moon.png",
+  "red-planet": "/tokens/red-planet.png",
+  "red-cross": "/tokens/red-cross.png",
+  "red-gear": "/tokens/red-gear.png",
+  "red-moon": "/tokens/red-moon.png",
+  "black-hole": "/tokens/black-hole.png"
+}

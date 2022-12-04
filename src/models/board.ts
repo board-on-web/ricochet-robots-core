@@ -3,6 +3,7 @@ import boardDescription from '../assets/boards/board_1.json'
 import boardTokensDescription from '../assets/boards/board_1_tokens.json'
 import { loadTextures } from "../utils/load-textures";
 import { Robot } from "./robot";
+import { Token } from "./token";
 
 export type BoardParts = typeof boardDescription
 export type BoardTokens = typeof boardTokensDescription
@@ -36,7 +37,6 @@ const CORNER_TEMPLATE = new Mesh(
   new BoxGeometry(WALL_HEIGHT, WALL_HEIGHT, 0.1),
   WALL_MATERIALS
 )
-const TOKEN_GEOMETRY = new PlaneGeometry(CELL_SIZE * 0.95, CELL_SIZE * 0.95)
 
 export class Board extends Group {
   constructor(parts: BoardParts, tokens: BoardTokens, textures: Awaited<ReturnType<typeof loadTextures>>) {
@@ -50,22 +50,7 @@ export class Board extends Group {
 
   private walls(partsModel: BoardParts, tokensModel: BoardTokens, textures: Awaited<ReturnType<typeof loadTextures>>) {
     return partsModel.map((part, index) => {
-      const tokens = tokensModel[index].map(token => {
-        const mesh = new Mesh(
-          TOKEN_GEOMETRY,
-          // @ts-ignore token.token is valid
-          new MeshBasicMaterial({ map: textures[token.token], transparent: true })
-        )
-        mesh.name = 'token'
-        mesh.userData = {
-          type: token.token,
-          color: token.color
-        }
-        mesh.rotation.x = -180 * (Math.PI / 180)
-        mesh.position.set(token.position[0] * CELL_SIZE, token.position[1] * CELL_SIZE, -0.001)
-
-        return mesh
-      })
+      const tokens = tokensModel[index].map(model => new Token(model, textures))
 
       const walls = part.flatMap((column, i, { length: cl }): Array<Mesh> => {
         return column.reduce((acc, item, j, { length: rl }): Array<Mesh> => {
@@ -187,11 +172,11 @@ export class Board extends Group {
     })
   }
 
-  public get tokens(): Array<Object3D> {
-    const tokens: Array<Object3D> = []
+  public get tokens(): Array<Token> {
+    const tokens: Array<Token> = []
     
     this.traverse((object) => {
-      if (object.name === 'token') {
+      if (object.name === 'token' && object instanceof Token) {
         tokens.push(object)
       }      
     })

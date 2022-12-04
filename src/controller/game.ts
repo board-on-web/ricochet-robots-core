@@ -1,4 +1,4 @@
-import { Color, Object3D, Vec2, Vector2, Vector3 } from "three";
+import { Color, Intersection, Object3D, Vec2, Vector2, Vector3 } from "three";
 import { Arrow, Arrows } from "../models/arrow";
 import robotsDescription from '../assets/robots.json'
 import { Board, BoardDescription, BoardParts, BoardTokens } from "../models/board";
@@ -13,6 +13,8 @@ export class GameController {
   private robots: Array<Robot>
 
   private selectedRobot: Robot | null = null
+
+  private whenWin: (() => void) | null = null
 
   constructor(
     boardParts: BoardParts,
@@ -45,13 +47,16 @@ export class GameController {
     return robots.map(it => {
       const robot = new Robot(models, new Color(it.color))
       robot.userData = {
-        type: 'robot',
-        name: it.name,
+        type: it.name,
         tint: it.tint
       }
 
       return robot
     })
+  }
+
+  public setWhenWinListener(whenWin: typeof this.whenWin) {
+    this.whenWin = whenWin
   }
 
   public selectRobot(robot: Robot) {
@@ -90,12 +95,9 @@ export class GameController {
             this.robotDirection(this.selectedRobot)
           )
 
-          // TODO (2022.12.04): Validate win
-          console.log(this.tokens[0]);
-          
-          console.log(
-            'win state', this.validateWin(this.selectedRobot, this.tokens[0])
-          );
+          if (this.validateWin(this.selectedRobot, this.board.tokens[0])) {
+            this.whenWin?.()
+          }
         }
       })
   }
@@ -112,27 +114,11 @@ export class GameController {
     ]
   }
 
-  private get tokens() {
-    return this.board.tokens.map(it => ({
-      type: it.userData.type as string,
-      color: it.userData.color as Array<string>,
-      position: (() => {
-        const worldPosition = new Vector3()
-        it.getWorldPosition(worldPosition)
-
-        return this.boardDescription.coordsByPosition({
-          x: Math.round(worldPosition.x * 10000) / 10000,
-          y: Math.round(worldPosition.z * 10000) / 10000,
-        })
-      })()
-    }))
-  }
-
-  private validateWin(robot: Robot, target: typeof this.tokens[number]): boolean {
-    return this.tokens.some(it =>
-      target.type === it.type
-        && it.position.x === robot.coords.x && it.position.y === robot.coords.y 
-        && it.color.includes(robot.userData.name)
+  private validateWin(robot: Robot, target: typeof this.board.tokens[number]): boolean {
+    return this.board.tokens.some(it =>
+      target.userData.type === it.userData.type
+        && it.coords.x === robot.coords.x && it.coords.y === robot.coords.y 
+        && it.userData.color.includes(robot.userData.type)
     )
   }
 

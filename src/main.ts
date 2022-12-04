@@ -1,4 +1,4 @@
-import { Color, LoadingManager, PerspectiveCamera, Raycaster, Vec2, WebGLRenderer } from 'three'
+import { Color, LoadingManager, PerspectiveCamera, Vec2, WebGLRenderer } from 'three'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
 import Tween from '@tweenjs/tween.js'
@@ -13,6 +13,7 @@ import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader'
 import { Arrow } from './models/arrow'
 import { CameraController } from './controller/camera'
 import { SceneController } from './controller/scene'
+import { RaycasterController } from './controller/raycaster'
 
 const scene = new SceneController()
 const camera = new PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
@@ -23,7 +24,7 @@ const composer = new EffectComposer(renderer)
 const renderPass = new RenderPass(scene, camera)
 const controls = new CameraController(camera, renderer.domElement)
 const loadingManager = new LoadingManager()
-const raycaster = new Raycaster()
+const raycaster = new RaycasterController()
 
 const textures = await loadTextures(loadingManager)
 const models = await loadStlModels(loadingManager)
@@ -41,37 +42,32 @@ const gameController = new GameController(
   models,
   textures
 )
+// win listener
+gameController.setWhenWinListener(() => {
+  alert('Win!')
+})
 // click listener
 renderer.domElement.addEventListener('click', (event: MouseEvent) => {
-  const bbox = renderer.domElement.getBoundingClientRect()
-  const pointer: Vec2 = {
-    x: ((event.clientX - bbox.left) / renderer.domElement.scrollWidth) * 2 - 1,
-    y: -((event.clientY - bbox.top) / renderer.domElement.scrollHeight) * 2 + 1
-  }
-
-  raycaster.setFromCamera(pointer, camera)
-  const intersects = raycaster.intersectObjects(scene.children)
+  const intersects = raycaster.intersects(
+    scene, camera, { x: event.clientX, y: event.clientY }, renderer.domElement,
+  )
   
   if (!intersects.length) {
     return
   }
 
+  controls.enabled = false
+
   // handle click by objects
   let target
 
-  if ((target = intersects.find(it => it.object instanceof Arrow))) {
-    controls.enabled = false
-
+  if ((target = intersects.find(it => it.object instanceof Arrow && it.object.visible))) {
     return gameController.clickByArrow(target.object as Arrow)
   }
 
-  if ((target = intersects.find(it => it.object instanceof Robot))) {
+  if ((target = intersects.find(it => it.object instanceof Robot && it.object.visible))) {
     // change background color
-    scene.changeBackground(
-      new Color((target.object as Robot).userData.tint)
-    )
-    // disable controls
-    controls.enabled = false
+    scene.changeBackground(new Color(target.object.userData.tint))
     controls.toInitialPosition()
 
     return gameController.clickByRobot(target.object as Robot)

@@ -10,6 +10,7 @@ import { RobotsController } from "./robots";
 import { Map } from "../models/map";
 import { BoardController } from "./board";
 import { ArrowsController } from "./arrows";
+import { RoundController } from "./round";
 
 export class GameController {
   private map = new Map()
@@ -17,8 +18,7 @@ export class GameController {
   private arrowsController: ArrowsController
   private boardController: BoardController
   private robotsController: RobotsController
-
-  private whenWin: (() => void) | null = null
+  private _roundController: RoundController
 
   constructor(
     boardParts: BoardParts,
@@ -31,6 +31,9 @@ export class GameController {
     this.arrowsController = new ArrowsController(arrow)
     this.boardController = new BoardController(boardParts, boardTokens, textures)
     this.robotsController = new RobotsController().make(robots, models)
+    this._roundController = new RoundController(
+      this.boardController.tokens.slice()
+    )
     // hide after initial
     this.arrowsController.hide()
 
@@ -40,10 +43,6 @@ export class GameController {
         y: Math.round((Math.random() * 15))
       })
     })
-  }
-
-  public setWhenWinListener(whenWin: typeof this.whenWin) {
-    this.whenWin = whenWin
   }
 
   public selectRobot(robot: Robot) {
@@ -94,7 +93,7 @@ export class GameController {
           )
 
           if (this.validateWin(this.selectedRobot, this.boardController.tokens[0])) {
-            this.whenWin?.()
+            this.roundController.emitEndRound()
           }
         }
       })
@@ -110,6 +109,10 @@ export class GameController {
       this.arrowsController,
       ...this.robotsController,
     ]
+  }
+
+  public get roundController(): RoundController {
+    return this._roundController
   }
 
   private validateWin(robot: Robot, target: typeof this.boardController.tokens[number]): boolean {

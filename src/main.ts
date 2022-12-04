@@ -42,9 +42,18 @@ const gameController = new GameController(
   models,
   textures
 )
-// win listener
-gameController.setWhenWinListener(() => {
+const roundController = gameController.roundController
+// end of round listener (after target robot place on target token)
+roundController.whenEndRound(() => {
   alert('Win!')
+})
+// end of game listener (tokens ends)
+roundController.whenEndGame(() => {
+  alert('End of game!')
+})
+// change turn listener
+roundController.whenChangeTurn((turn) => {
+  alert('Turn: ' + turn)
 })
 // keypress listener
 window.addEventListener('keyup', (event) => {

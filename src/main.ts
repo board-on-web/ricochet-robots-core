@@ -56,6 +56,7 @@ roundController.whenEndGame(() => {
 roundController.whenChangeTurn((turn) => {
   alert('Turn: ' + turn)
 })
+
 // keypress listener
 window.addEventListener('keyup', (event) => {
   switch (event.code) {
@@ -93,6 +94,10 @@ window.addEventListener('keyup', (event) => {
     }
 
     case 'Space': {
+      // change background color
+      scene.changeBackground(new Color(robotsController.nextRobot.userData.tint))
+      controls.toInitialPosition()
+
       gameController.setNextSelectedRobot()
 
       break
@@ -101,9 +106,8 @@ window.addEventListener('keyup', (event) => {
 })
 // click listener
 renderer.domElement.addEventListener('click', (event) => {
-  const intersects = raycaster.intersects(
-    scene, camera, { x: event.clientX, y: event.clientY }, renderer.domElement,
-  )
+  const point: Vec2 = { x: event.clientX, y: event.clientY }
+  const intersects = raycaster.intersects(scene, camera, point, renderer.domElement)
   
   if (!intersects.length) {
     return

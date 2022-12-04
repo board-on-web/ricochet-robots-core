@@ -21,11 +21,11 @@ export class Robot extends Mesh {
    * @param {Vec2} position x and y between [0; 15]
    */
   public moveTo(position: Vec2) {
-    const coords = this.boardDescription.coordsByPosition(position)
+    const coords = this.boardDescription.positionByCoords(position)
     
     return new Tween({ x: this.position.x, y: this.position.z })
       .to(coords, 300)
-      .easing(Easing.Linear.None)
+      .easing(Easing.Circular.InOut)
       .onUpdate(({ x, y }) => {
         this.position.x = x
         this.position.z = y
@@ -39,5 +39,12 @@ export class Robot extends Mesh {
 
   public markSelect() {
     (this.material as Material).opacity = 0.9
+  }
+
+  public get coords(): Vec2 {
+    return this.boardDescription.coordsByPosition({
+      x: this.position.x,
+      y: this.position.z,
+    })
   }
 }

@@ -1,4 +1,4 @@
-import { Color, LoadingManager, Material, MeshBasicMaterial, PerspectiveCamera, Raycaster, Scene, Vec2, WebGLRenderer } from 'three'
+import { Color, LoadingManager, PerspectiveCamera, Raycaster, Vec2, WebGLRenderer } from 'three'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
 import Tween from '@tweenjs/tween.js'
@@ -61,6 +61,7 @@ renderer.domElement.addEventListener('click', (event: MouseEvent) => {
 
   if ((target = intersects.find(it => it.object instanceof Arrow))) {
     controls.enabled = false
+
     return gameController.clickByArrow(target.object as Arrow)
   }
 
@@ -72,6 +73,7 @@ renderer.domElement.addEventListener('click', (event: MouseEvent) => {
     // disable controls
     controls.enabled = false
     controls.toInitialPosition()
+
     return gameController.clickByRobot(target.object as Robot)
   }
 

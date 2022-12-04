@@ -1,4 +1,4 @@
-import { Color, Object3D, Vec2 } from "three";
+import { Color, Object3D, Vec2, Vector2, Vector3 } from "three";
 import { Arrow, Arrows } from "../models/arrow";
 import robotsDescription from '../assets/robots.json'
 import { Board, BoardDescription, BoardParts, BoardTokens } from "../models/board";
@@ -79,8 +79,9 @@ export class GameController {
       return
     }
 
+    const target = this.routeTo(this.selectedRobot, arrow)
     this.selectedRobot
-      .moveTo(this.routeTo(this.selectedRobot, arrow))
+      .moveTo(target)
       .onStart(() => this.arrows.hide())
       .onComplete(() => {
         if (this.selectedRobot) {
@@ -88,6 +89,13 @@ export class GameController {
           this.arrows.visibleByDirection(
             this.robotDirection(this.selectedRobot)
           )
+
+          // TODO (2022.12.04): Validate win
+          console.log(this.tokens[0]);
+          
+          console.log(
+            'win state', this.validateWin(this.selectedRobot, this.tokens[0])
+          );
         }
       })
   }
@@ -104,23 +112,39 @@ export class GameController {
     ]
   }
 
+  private get tokens() {
+    return this.board.tokens.map(it => ({
+      type: it.userData.type as string,
+      color: it.userData.color as Array<string>,
+      position: (() => {
+        const worldPosition = new Vector3()
+        it.getWorldPosition(worldPosition)
+
+        return this.boardDescription.coordsByPosition({
+          x: Math.round(worldPosition.x * 10000) / 10000,
+          y: Math.round(worldPosition.z * 10000) / 10000,
+        })
+      })()
+    }))
+  }
+
+  private validateWin(robot: Robot, target: typeof this.tokens[number]): boolean {
+    return this.tokens.some(it =>
+      target.type === it.type
+        && it.position.x === robot.coords.x && it.position.y === robot.coords.y 
+        && it.color.includes(robot.userData.name)
+    )
+  }
+
   private robotDirection(robot: Robot): number {
-    const position = this.boardDescription.positionByCoords({
-      x: robot.position.x,
-      y: robot.position.z
-    })
     const description = this.boardDescription.generate(
       this.board,
       this.robots.filter(it => it !== robot)
     )
-    return description[position.y][position.x]
+    return description[robot.coords.y][robot.coords.x]
   }
 
   private routeTo(robot: Robot, arrow: Arrow): Vec2 {
-    const robotPosition = this.boardDescription.positionByCoords({
-      x: robot.position.x,
-      y: robot.position.z,
-    })
     const direction = arrow.userData.direction
     const description = this.boardDescription.generate(
       this.board,
@@ -128,7 +152,7 @@ export class GameController {
     )
 
     return this.boardDescription.calcRouteToByDirection(
-      robotPosition, direction, description
+      robot.coords, direction, description
     )
   }
 }

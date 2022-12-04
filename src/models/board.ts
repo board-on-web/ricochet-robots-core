@@ -1,4 +1,4 @@
-import { BoxGeometry, Group, Mesh, MeshBasicMaterial, PlaneGeometry, Vec2, Vector3 } from "three";
+import { BoxGeometry, Group, Mesh, MeshBasicMaterial, Object3D, PlaneGeometry, Vec2, Vector3 } from "three";
 import boardDescription from '../assets/boards/board_1.json'
 import boardTokensDescription from '../assets/boards/board_1_tokens.json'
 import { loadTextures } from "../utils/load-textures";
@@ -186,6 +186,18 @@ export class Board extends Group {
       return plane
     })
   }
+
+  public get tokens(): Array<Object3D> {
+    const tokens: Array<Object3D> = []
+    
+    this.traverse((object) => {
+      if (object.name === 'token') {
+        tokens.push(object)
+      }      
+    })
+
+    return tokens
+  }
 }
 
 export class BoardDescription {
@@ -205,9 +217,9 @@ export class BoardDescription {
 
     return Array.from({ length: BOARD_SIZE }, (_, y) => {
       return Array.from({ length: BOARD_SIZE }, (_, x) => {
-        const coords = this.coordsByPosition({ x, y })
+        const position = this.positionByCoords({ x, y })
         let value = 0
-        
+
         const isLeft = x === 0
         const isTop = y === 0
         const isRight = x === BOARD_SIZE - 1
@@ -219,28 +231,16 @@ export class BoardDescription {
         const isCenterLeft = x === 9 && [7, 8].includes(y)
         const isCenterTop = y === 9 && [7, 8].includes(x)
 
-        const hasLeftWall = wallsPositions.find(it => it.x === coords.x - CELL_SIZE_HALF && it.y === coords.y)
-        const hasTopWall = wallsPositions.find(it => it.x === coords.x && it.y === coords.y - CELL_SIZE_HALF)
-        const hasRightWall = wallsPositions.find(it => it.x === coords.x + CELL_SIZE_HALF && it.y === coords.y)
-        const hasBottomWall = wallsPositions.find(it => it.x === coords.x && it.y === coords.y + CELL_SIZE_HALF)
+        const hasLeftWall = wallsPositions.find(it => it.x === position.x - CELL_SIZE_HALF && it.y === position.y)
+        const hasTopWall = wallsPositions.find(it => it.x === position.x && it.y === position.y - CELL_SIZE_HALF)
+        const hasRightWall = wallsPositions.find(it => it.x === position.x + CELL_SIZE_HALF && it.y === position.y)
+        const hasBottomWall = wallsPositions.find(it => it.x === position.x && it.y === position.y + CELL_SIZE_HALF)
         
-        const isRobot = robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
-        const isRobotRight = (() => {
-          const coords = this.coordsByPosition({ x: x + 1, y })
-          return robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
-        })()
-        const isRobotBottom = (() => {
-          const coords = this.coordsByPosition({ x, y: y + 1 })
-          return robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
-        })()
-        const isRobotLeft = (() => {
-          const coords = this.coordsByPosition({ x: x - 1, y })
-          return robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
-        })()
-        const isRobotTop = (() => {
-          const coords = this.coordsByPosition({ x, y: y - 1 })
-          return robots.find(it => it.position.x === coords.x && it.position.z === coords.y)
-        })()
+        const isRobot = robots.find(it => it.coords.x === x && it.coords.y === y)
+        const isRobotRight = robots.find(it => it.coords.x === x + 1 && it.coords.y === y)
+        const isRobotBottom = robots.find(it => it.coords.x === x && it.coords.y === y + 1)
+        const isRobotLeft = robots.find(it => it.coords.x === x - 1 && it.coords.y === y)
+        const isRobotTop = robots.find(it => it.coords.x === x && it.coords.y === y - 1)
 
         if (isCenter || isRobot) {
           return value = 15
@@ -271,14 +271,14 @@ export class BoardDescription {
     })
   }
 
-  public coordsByPosition(position: Vec2): Vec2 {
+  public positionByCoords(position: Vec2): Vec2 {
     return {
       x: CELL_SIZE * (position.x - 7.5),
       y: CELL_SIZE * (position.y - 7.5)
     }
   }
   
-  public positionByCoords(position: Vec2): Vec2 {
+  public coordsByPosition(position: Vec2): Vec2 {
     return {
       x: position.x / CELL_SIZE + 7.5,
       y: position.y / CELL_SIZE + 7.5

@@ -39,4 +39,12 @@ export class RobotsController extends Array<Robot> {
   public get selectedRobot(): typeof this._selectedRobot {
     return this._selectedRobot
   }
+
+  // return next by order robot
+  public get nextRobot(): Robot {
+    const idx = this.selectedRobot ? this.indexOf(this.selectedRobot) : -1
+    return (idx + 1 >= this.length) || (idx === -1)
+      ? this[0]
+      : this[idx + 1]
+  }
 }

@@ -103,6 +103,10 @@ export class GameController {
     return Boolean(this.selectedRobot)
   }
 
+  public setNextSelectedRobot() {
+    this.selectRobot(this.robotsController.nextRobot)
+  }
+
   public get models(): Array<Object3D> {
     return [
       this.boardController,

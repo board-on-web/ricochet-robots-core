@@ -57,7 +57,7 @@ roundController.whenChangeTurn((turn) => {
 })
 // keypress listener
 window.addEventListener('keyup', (event) => {
-  switch (event.key) {
+  switch (event.code) {
     case 'ArrowLeft': {
       if (gameController.hasSelectedRobot) {
         gameController.moveSelectedRobot(0)
@@ -88,6 +88,12 @@ window.addEventListener('keyup', (event) => {
         gameController.moveSelectedRobot(3)
       }
       
+      break
+    }
+
+    case 'Space': {
+      gameController.setNextSelectedRobot()
+
       break
     }
   }

@@ -1,18 +1,20 @@
-import { Token } from "../models/token";
+import { BoardTokens } from "../models/board";
 
 type Turn = 'prepare' | 'planning' | 'waiting-better' | 'presentation'
 
 export class RoundController {
   private _turn: Turn = 'prepare'
-  private _targetTokens: Array<Token>
-  private _targetToken: Token
+  private _targetTokens: Array<BoardTokens[number][number]>
+  private _targetToken: BoardTokens[number][number]
 
   private _whenChangeTurn: ((turn: Turn) => void) | null = null
   private _whenEndRound: (() => void) | null = null
   private _whenEndGame: (() => void) | null = null
 
-  constructor(tokens: Array<Token>) {
-    this._targetTokens = tokens.sort(() => Math.random() - 0.5)
+  constructor(tokens: BoardTokens) {
+    this._targetTokens = tokens
+      .flat(2)
+      .sort(() => Math.random() - 0.5)
    
     this.nextToken()
     this._targetToken = this.targetToken
@@ -27,8 +29,7 @@ export class RoundController {
     const nextToken = this._targetTokens.pop()
 
     if (!nextToken) {
-      this._whenEndGame?.()
-      throw new Error('End game')
+      return this._whenEndGame?.()
     }
 
     this._targetToken = nextToken
@@ -50,7 +51,7 @@ export class RoundController {
     this._whenEndRound?.()
   }
 
-  public get targetToken(): Token {
+  public get targetToken(): BoardTokens[number][number] {
     return this._targetToken
   }
 

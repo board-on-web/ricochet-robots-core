@@ -15,11 +15,11 @@ export class CameraController extends OrbitControls {
     )
     this.target = new Vector3(0, -0.3, 0)
 
-    this.enablePan = false
-    this.enableZoom = false
-    this.maxAzimuthAngle = 0
-    this.minAzimuthAngle = 0
-    this.maxPolarAngle = 30 * (Math.PI / 180)
+    // this.enablePan = false
+    // this.enableZoom = false
+    // this.maxAzimuthAngle = 0
+    // this.minAzimuthAngle = 0
+    // this.maxPolarAngle = 30 * (Math.PI / 180)
   }
 
   toInitialPosition() {

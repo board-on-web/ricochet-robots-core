@@ -1,6 +1,6 @@
 import { MathUtils, Object3D, Vec2 } from "three";
 import { Arrow } from "../models/arrow";
-import { BOARD_SIZE } from "../models/board";
+import { BoardTokens, BOARD_SIZE } from "../models/board";
 import { Robot } from "../models/robot";
 import { Direction } from "../types/direction";
 import { RobotsController } from "./robots";
@@ -74,7 +74,7 @@ export class GameController {
             this.robotDirection(this.selectedRobot)
           )
 
-          if (this.validateWin(this.selectedRobot, this.boardController.tokens[0])) {
+          if (this.validateWin(this.selectedRobot, this.roundController.targetToken)) {
             this.roundController.emitEndRound()
           }
         }
@@ -111,9 +111,9 @@ export class GameController {
     )
   }
 
-  private validateWin(robot: Robot, target: typeof this.boardController.tokens[number]): boolean {
+  private validateWin(robot: Robot, target: BoardTokens[number][number]): boolean {
     return this.boardController.tokens.some(it =>
-      target.userData.type === it.userData.type
+      target.token === it.userData.type
         && it.coords.x === robot.coords.x && it.coords.y === robot.coords.y 
         && it.userData.color.includes(robot.userData.type)
     )

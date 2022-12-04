@@ -120,7 +120,7 @@ class ViewController {
     this.arrows = new ArrowsController(arrow)
     this.board = new BoardController(bd, btd, textures)
     this.robots = new RobotsController().make(rd, models)
-    this.rc = new RoundController(this.board.tokens.slice())
+    this.rc = new RoundController(btd)
     this.gc = new GameController(this.board, this.robots, this.arrows, this.rc)
 
     this.prepare()
@@ -155,12 +155,16 @@ class ViewController {
     })
     // composer
     this.composer.addPass(this.renderPass)
+
+    this.board.setTargetToken(this.rc.targetToken)
   }
 
   private makeListeners() {
     // end of round listener (after target robot place on target token)
     this.rc.whenEndRound(() => {
       alert('Win!')
+      this.rc.nextToken()
+      this.board.setTargetToken(this.rc.targetToken)
     })
     // end of game listener (tokens ends)
     this.rc.whenEndGame(() => {
@@ -196,8 +200,10 @@ class ViewController {
 try {
   const vc = new ViewController()
   await vc.make()
-  
+
   vc.start()
-} catch (err) { 
+} catch (err) {
+  console.error(err);
+  
   throw new Error('Not implemented')
 }

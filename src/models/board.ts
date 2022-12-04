@@ -12,6 +12,7 @@ export const BOARD_CELL_SIZE = 1 / BOARD_SIZE
 export const CELL_COUNT = 8
 export const CELL_SIZE = 1 / CELL_COUNT
 export const CELL_SIZE_HALF = CELL_SIZE / 2
+export const WALL_TOP = 0.1
 const WALL_HEIGHT = 0.015
 const WALL_WIDTH = CELL_SIZE - WALL_HEIGHT
 const SIDE_MATERIAL = new MeshBasicMaterial({ color: '#B0BEC5' })
@@ -21,19 +22,19 @@ const WALL_MATERIALS = [
   SIDE_MATERIAL,
   SIDE_MATERIAL,
   SIDE_MATERIAL,
-  SIDE_MATERIAL,
+  TOP_MATERIAL,
   TOP_MATERIAL
 ]
 const SIDE_TEMPLATE = new Mesh(
-  new BoxGeometry(1, WALL_HEIGHT, 0.1),
+  new BoxGeometry(BOARD_SIZE * BOARD_CELL_SIZE, WALL_HEIGHT, WALL_TOP),
   WALL_MATERIALS
 )
 const WALL_TEMPLATE = new Mesh(
-  new BoxGeometry(WALL_WIDTH, WALL_HEIGHT, 0.1),
+  new BoxGeometry(WALL_WIDTH, WALL_HEIGHT, WALL_TOP),
   WALL_MATERIALS
 )
 const CORNER_TEMPLATE = new Mesh(
-  new BoxGeometry(WALL_HEIGHT, WALL_HEIGHT, 0.1),
+  new BoxGeometry(WALL_HEIGHT, WALL_HEIGHT, WALL_TOP),
   WALL_MATERIALS
 )
 

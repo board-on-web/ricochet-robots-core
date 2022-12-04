@@ -4,8 +4,6 @@ import { BoardTokens, CELL_SIZE } from "./board"
 import { Map } from "./map"
 
 export class Token extends Mesh {
-  private boardDescription = new Map()
-
   constructor(token: BoardTokens[number][number], textures: Awaited<ReturnType<typeof loadTextures>>) {
     super(
       new PlaneGeometry(CELL_SIZE * 0.95, CELL_SIZE * 0.95),
@@ -25,7 +23,7 @@ export class Token extends Mesh {
     const worldPosition = new Vector3()
     this.getWorldPosition(worldPosition)
 
-    return this.boardDescription.coordsByPosition({
+    return new Map().coordsByPosition({
       x: Math.round(worldPosition.x * 10000) / 10000,
       y: Math.round(worldPosition.z * 10000) / 10000,
     })

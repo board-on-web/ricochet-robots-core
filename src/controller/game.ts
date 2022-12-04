@@ -1,8 +1,7 @@
-import { Object3D, Vec2 } from "three";
+import { MathUtils, Object3D, Vec2 } from "three";
 import { Arrow } from "../models/arrow";
-import robotsDescription from '../assets/robots.json'
-import { BoardParts, BoardTokens } from "../models/board";
-import { Robot } from "../models/robot";
+import { BoardParts, BoardTokens, BOARD_SIZE } from "../models/board";
+import { Robot, RobotsDescription } from "../models/robot";
 import { loadStlModels } from "../utils/load-models";
 import { loadTextures } from "../utils/load-textures";
 import { Direction } from "../types/direction";
@@ -23,7 +22,7 @@ export class GameController {
   constructor(
     boardParts: BoardParts,
     boardTokens: BoardTokens,
-    robots: typeof robotsDescription,
+    robots: RobotsDescription,
     arrow: Arrow,
     models: Awaited<ReturnType<typeof loadStlModels>>,
     textures: Awaited<ReturnType<typeof loadTextures>>
@@ -37,11 +36,9 @@ export class GameController {
     // hide after initial
     this.arrowsController.hide()
 
-    this.robotsController.forEach(robot => {
-      robot.moveTo({
-        x: Math.round((Math.random() * 15)),
-        y: Math.round((Math.random() * 15))
-      })
+    const generatedPositions = this.generatePositions()
+    this.robotsController.forEach((robot, idx) => {
+      robot.moveTo(generatedPositions[idx])
     })
   }
 
@@ -119,6 +116,20 @@ export class GameController {
     return this._roundController
   }
 
+  private generatePositions(): Array<Vec2> {
+    const map = this.map.generate(this.boardController, [])
+    const mapCoords: Array<Vec2> = Array(BOARD_SIZE).fill(undefined).flatMap((_, y) => {
+      return Array(BOARD_SIZE)
+        .fill(undefined)
+        .map((_, x) => map[x][y] !== 15 && !this.boardController.tokens.some(it => it.coords.x === x && it.coords.y === y) && { x, y })
+        .filter(Boolean) as Array<Vec2>
+    })
+
+    return Array(5).fill(undefined).map(() => 
+      mapCoords.splice(MathUtils.randInt(0, mapCoords.length - 1), 1)[0]
+    )
+  }
+
   private validateWin(robot: Robot, target: typeof this.boardController.tokens[number]): boolean {
     return this.boardController.tokens.some(it =>
       target.userData.type === it.userData.type
@@ -140,9 +151,7 @@ export class GameController {
       this.robotsController.filter(it => it !== robot)
     )
 
-    return this.map.calcRouteToByDirection(
-      robot.coords, direction, description
-    )
+    return this.map.calcRouteToByDirection(robot.coords, direction, description)
   }
 
   private get selectedRobot() {

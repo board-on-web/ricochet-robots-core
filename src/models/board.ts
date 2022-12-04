@@ -1,8 +1,7 @@
-import { BoxGeometry, Group, Mesh, MeshBasicMaterial, Object3D, PlaneGeometry, Vec2, Vector3 } from "three";
+import { BoxGeometry, Group, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
 import boardDescription from '../assets/boards/board_1.json'
 import boardTokensDescription from '../assets/boards/board_1_tokens.json'
 import { loadTextures } from "../utils/load-textures";
-import { Robot } from "./robot";
 import { Token } from "./token";
 
 export type BoardParts = typeof boardDescription

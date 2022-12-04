@@ -1,18 +1,22 @@
-import { Color, Intersection, Object3D, Vec2, Vector2, Vector3 } from "three";
-import { Arrow, Arrows } from "../models/arrow";
+import { Object3D, Vec2 } from "three";
+import { Arrow } from "../models/arrow";
 import robotsDescription from '../assets/robots.json'
-import { Board, BoardDescription, BoardParts, BoardTokens } from "../models/board";
+import { BoardParts, BoardTokens } from "../models/board";
 import { Robot } from "../models/robot";
 import { loadStlModels } from "../utils/load-models";
 import { loadTextures } from "../utils/load-textures";
+import { Direction } from "../types/direction";
+import { RobotsController } from "./robots";
+import { Map } from "../models/map";
+import { BoardController } from "./board";
+import { ArrowsController } from "./arrows";
 
 export class GameController {
-  private boardDescription = new BoardDescription()
-  private board: Board
-  private arrows: Arrows
-  private robots: Array<Robot>
+  private map = new Map()
 
-  private selectedRobot: Robot | null = null
+  private arrowsController: ArrowsController
+  private boardController: BoardController
+  private robotsController: RobotsController
 
   private whenWin: (() => void) | null = null
 
@@ -24,34 +28,17 @@ export class GameController {
     models: Awaited<ReturnType<typeof loadStlModels>>,
     textures: Awaited<ReturnType<typeof loadTextures>>
   ) {
-    this.arrows = new Arrows(arrow)
-    this.board = this.makeBoard(boardParts, boardTokens, textures)
-    this.robots = this.makeRobots(robots, models)
+    this.arrowsController = new ArrowsController(arrow)
+    this.boardController = new BoardController(boardParts, boardTokens, textures)
+    this.robotsController = new RobotsController().make(robots, models)
     // hide after initial
-    this.arrows.hide()
+    this.arrowsController.hide()
 
-    this.robots.forEach(robot => {
+    this.robotsController.forEach(robot => {
       robot.moveTo({
         x: Math.round((Math.random() * 15)),
         y: Math.round((Math.random() * 15))
       })
-    })
-  }
-
-  private makeBoard(parts: BoardParts, tokens: BoardTokens, textures: Awaited<ReturnType<typeof loadTextures>>): Board {
-    const board = new Board(parts, tokens, textures)
-    return board
-  }
-
-  private makeRobots(robots: typeof robotsDescription, models: Awaited<ReturnType<typeof loadStlModels>>): Array<Robot> {
-    return robots.map(it => {
-      const robot = new Robot(models, new Color(it.color))
-      robot.userData = {
-        type: it.name,
-        tint: it.tint
-      }
-
-      return robot
     })
   }
 
@@ -60,62 +47,73 @@ export class GameController {
   }
 
   public selectRobot(robot: Robot) {
-    this.selectedRobot = robot
-    this.selectedRobot.markSelect()
-    this.arrows.moveToRobot(this.selectedRobot)
-    this.arrows.visibleByDirection(
+    this.robotsController.setSelectedRobot(robot)
+
+    this.arrowsController.moveToRobot(robot)
+    this.arrowsController.visibleByDirection(
       this.robotDirection(robot)
     )
   }
 
   public unselectRobot() {
-    this.robots.forEach(it => it.markUnselect());
-    this.selectedRobot = null
-    this.arrows.hide()
+    this.robotsController.clearSelectedRobot()
+    this.arrowsController.hide()
   }
 
   public clickByRobot(robot: Robot) {
-    this.robots.forEach(it => it.markUnselect());
     this.selectRobot(robot)
   }
 
-  public clickByArrow(arrow: Arrow) {    
-    if (!this.selectedRobot) {
-      return
-    }
-
-    const target = this.routeTo(this.selectedRobot, arrow)
-    this.selectedRobot
-      .moveTo(target)
-      .onStart(() => this.arrows.hide())
-      .onComplete(() => {
-        if (this.selectedRobot) {
-          this.arrows.moveToRobot(this.selectedRobot)
-          this.arrows.visibleByDirection(
-            this.robotDirection(this.selectedRobot)
-          )
-
-          if (this.validateWin(this.selectedRobot, this.board.tokens[0])) {
-            this.whenWin?.()
-          }
-        }
-      })
+  public clickByArrow(arrow: Arrow) {   
+    return this.moveSelectedRobot(arrow.userData.direction) 
   }
 
   public clickMiss() {
     this.unselectRobot()
   }
 
+  public moveSelectedRobot(direction: Direction) {
+    if (!this.selectedRobot) {
+      return
+    }
+
+    // cancel move if direction arrow hidden
+    if (!this.arrowsController.isArrowVisible(direction)) {
+      return
+    }
+
+    const target = this.routeTo(this.selectedRobot, direction)
+    this.selectedRobot
+      .moveTo(target)
+      .onStart(() => this.arrowsController.hide())
+      .onComplete(() => {
+        if (this.selectedRobot) {
+          this.arrowsController.moveToRobot(this.selectedRobot)
+          this.arrowsController.visibleByDirection(
+            this.robotDirection(this.selectedRobot)
+          )
+
+          if (this.validateWin(this.selectedRobot, this.boardController.tokens[0])) {
+            this.whenWin?.()
+          }
+        }
+      })
+  }
+
+  public get hasSelectedRobot(): boolean {
+    return Boolean(this.selectedRobot)
+  }
+
   public get models(): Array<Object3D> {
     return [
-      this.board,
-      this.arrows,
-      ...this.robots,
+      this.boardController,
+      this.arrowsController,
+      ...this.robotsController,
     ]
   }
 
-  private validateWin(robot: Robot, target: typeof this.board.tokens[number]): boolean {
-    return this.board.tokens.some(it =>
+  private validateWin(robot: Robot, target: typeof this.boardController.tokens[number]): boolean {
+    return this.boardController.tokens.some(it =>
       target.userData.type === it.userData.type
         && it.coords.x === robot.coords.x && it.coords.y === robot.coords.y 
         && it.userData.color.includes(robot.userData.type)
@@ -123,22 +121,28 @@ export class GameController {
   }
 
   private robotDirection(robot: Robot): number {
-    const description = this.boardDescription.generate(
-      this.board,
-      this.robots.filter(it => it !== robot)
+    const description = this.map.generate(
+      this.boardController, this.unselectedRobots
     )
     return description[robot.coords.y][robot.coords.x]
   }
 
-  private routeTo(robot: Robot, arrow: Arrow): Vec2 {
-    const direction = arrow.userData.direction
-    const description = this.boardDescription.generate(
-      this.board,
-      this.robots.filter(it => it !== robot)
+  private routeTo(robot: Robot, direction: Direction): Vec2 {
+    const description = this.map.generate(
+      this.boardController,
+      this.robotsController.filter(it => it !== robot)
     )
 
-    return this.boardDescription.calcRouteToByDirection(
+    return this.map.calcRouteToByDirection(
       robot.coords, direction, description
     )
+  }
+
+  private get selectedRobot() {
+    return this.robotsController.selectedRobot
+  }
+
+  private get unselectedRobots() {
+    return this.robotsController.filter(it => it !== this.selectedRobot)
   }
 }

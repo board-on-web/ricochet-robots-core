@@ -46,8 +46,45 @@ const gameController = new GameController(
 gameController.setWhenWinListener(() => {
   alert('Win!')
 })
+// keypress listener
+window.addEventListener('keyup', (event) => {
+  switch (event.key) {
+    case 'ArrowLeft': {
+      if (gameController.hasSelectedRobot) {
+        gameController.moveSelectedRobot(0)
+      }
+
+      break
+    }
+      
+
+    case 'ArrowUp': {
+      if (gameController.hasSelectedRobot) {
+        gameController.moveSelectedRobot(1)
+      }
+      
+      break
+    }
+
+    case 'ArrowRight': {
+      if (gameController.hasSelectedRobot) {
+        gameController.moveSelectedRobot(2)
+      }
+      
+      break
+    }
+
+    case 'ArrowDown': {
+      if (gameController.hasSelectedRobot) {
+        gameController.moveSelectedRobot(3)
+      }
+      
+      break
+    }
+  }
+})
 // click listener
-renderer.domElement.addEventListener('click', (event: MouseEvent) => {
+renderer.domElement.addEventListener('click', (event) => {
   const intersects = raycaster.intersects(
     scene, camera, { x: event.clientX, y: event.clientY }, renderer.domElement,
   )

@@ -1,10 +1,10 @@
 import { Easing, Tween } from "@tweenjs/tween.js";
 import { Box3, Color, Material, Mesh, MeshBasicMaterial, Vec2 } from "three";
 import { loadStlModels } from "../utils/load-models";
-import { BoardDescription } from "./board";
+import { Map } from "./map";
 
 export class Robot extends Mesh {
-  private boardDescription = new BoardDescription()
+  private boardDescription = new Map()
 
   constructor(models: Awaited<ReturnType<typeof loadStlModels>>, color: Color) {
     super(models['robot'].center(), new MeshBasicMaterial({ color, transparent: true, opacity: 0.7 }))

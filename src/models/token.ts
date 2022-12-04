@@ -1,9 +1,10 @@
 import { Mesh, MeshBasicMaterial, PlaneGeometry, Vec2, Vector3 } from "three"
 import { loadTextures } from "../utils/load-textures"
-import { BoardDescription, BoardTokens, CELL_SIZE } from "./board"
+import { BoardTokens, CELL_SIZE } from "./board"
+import { Map } from "./map"
 
 export class Token extends Mesh {
-  private boardDescription = new BoardDescription()
+  private boardDescription = new Map()
 
   constructor(token: BoardTokens[number][number], textures: Awaited<ReturnType<typeof loadTextures>>) {
     super(

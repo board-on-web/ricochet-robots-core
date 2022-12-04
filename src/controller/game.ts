@@ -1,9 +1,7 @@
 import { MathUtils, Object3D, Vec2 } from "three";
 import { Arrow } from "../models/arrow";
-import { BoardParts, BoardTokens, BOARD_SIZE } from "../models/board";
-import { Robot, RobotsDescription } from "../models/robot";
-import { loadStlModels } from "../utils/load-models";
-import { loadTextures } from "../utils/load-textures";
+import { BOARD_SIZE } from "../models/board";
+import { Robot } from "../models/robot";
 import { Direction } from "../types/direction";
 import { RobotsController } from "./robots";
 import { Map } from "../models/map";
@@ -14,25 +12,12 @@ import { RoundController } from "./round";
 export class GameController {
   private map = new Map()
 
-  private arrowsController: ArrowsController
-  private boardController: BoardController
-  private robotsController: RobotsController
-  private _roundController: RoundController
-
   constructor(
-    boardParts: BoardParts,
-    boardTokens: BoardTokens,
-    robots: RobotsDescription,
-    arrow: Arrow,
-    models: Awaited<ReturnType<typeof loadStlModels>>,
-    textures: Awaited<ReturnType<typeof loadTextures>>
+    private readonly boardController: BoardController,
+    private readonly robotsController: RobotsController,
+    private readonly arrowsController: ArrowsController,
+    private readonly roundController: RoundController,
   ) {
-    this.arrowsController = new ArrowsController(arrow)
-    this.boardController = new BoardController(boardParts, boardTokens, textures)
-    this.robotsController = new RobotsController().make(robots, models)
-    this._roundController = new RoundController(
-      this.boardController.tokens.slice()
-    )
     // hide after initial
     this.arrowsController.hide()
 
@@ -110,10 +95,6 @@ export class GameController {
       this.arrowsController,
       ...this.robotsController,
     ]
-  }
-
-  public get roundController(): RoundController {
-    return this._roundController
   }
 
   private generatePositions(): Array<Vec2> {

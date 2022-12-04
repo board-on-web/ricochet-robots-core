@@ -14,6 +14,10 @@ import { Arrow } from './models/arrow'
 import { CameraController } from './controller/camera'
 import { SceneController } from './controller/scene'
 import { RaycasterController } from './controller/raycaster'
+import { ArrowsController } from './controller/arrows'
+import { BoardController } from './controller/board'
+import { RobotsController } from './controller/robots'
+import { RoundController } from './controller/round'
 
 const scene = new SceneController()
 const camera = new PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
@@ -34,15 +38,12 @@ const arrow = await new SVGLoader(loadingManager)
   .then(it => it.paths[0].toShapes(true))
   .then(it => new Arrow(it))
 
-const gameController = new GameController(
-  boardDescription,
-  boardTokensDescription,
-  robotsDescription,
-  arrow,
-  models,
-  textures
-)
-const roundController = gameController.roundController
+const arrowsController = new ArrowsController(arrow)
+const boardController = new BoardController(boardDescription, boardTokensDescription, textures)
+const robotsController = new RobotsController().make(robotsDescription, models)
+const roundController = new RoundController(boardController.tokens.slice())
+const gameController = new GameController(boardController, robotsController, arrowsController, roundController)
+
 // end of round listener (after target robot place on target token)
 roundController.whenEndRound(() => {
   alert('Win!')

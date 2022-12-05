@@ -14,6 +14,7 @@ export class Arrow extends Mesh {
         transparent: true,
       })
     )
+    this.name = 'arrow'
     
     this.rotation.x = 90 * (Math.PI / 180)
     this.position.y = HEIGHT

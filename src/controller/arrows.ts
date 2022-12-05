@@ -10,7 +10,6 @@ export class ArrowsController extends Group {
     const arrows = Array.from({ length: 4 }, (_, index) => {
       const targetArrow = arrow.clone()
       targetArrow.userData = {
-        type: 'arrow',
         // direction [ 3 0 1 2 ]
         direction: index === 3 ? 0 : index + 1
       }

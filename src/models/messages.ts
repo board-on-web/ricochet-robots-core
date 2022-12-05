@@ -1,5 +1,11 @@
 import { Turn } from "../controller/round"
 import { BoardTokens } from "./board"
+import { State } from "./state"
+
+export interface MessageCommitState {
+  event: 'commit_state',
+  state: State
+}
 
 export interface MessageChangeTurn {
   event: 'change_turn',

@@ -1,9 +1,11 @@
 import { Color } from 'three'
 import robotsDescription from '../assets/robots.json'
 import { Robot } from '../models/robot'
+import { RobotStateDto } from '../models/state'
 import { loadStlModels } from '../utils/load-models'
+import { IState } from './state'
 
-export class RobotsController extends Array<Robot> {
+export class RobotsController extends Array<Robot> implements IState<Array<RobotStateDto>> {
   private _selectedRobot: Robot | null = null
 
   public make(robots: typeof robotsDescription, models: Awaited<ReturnType<typeof loadStlModels>>) {
@@ -48,5 +50,23 @@ export class RobotsController extends Array<Robot> {
     return (idx + 1 >= this.length) || (idx === -1)
       ? this[0]
       : this[idx + 1]
+  }
+
+  public restore(state: RobotStateDto[]): void {
+    state.forEach(it => {
+      const robot = this.find(robot => it.type === robot.userData.type)
+
+      if (robot) {
+        robot.moveTo(it.position)
+      }
+    })
+    throw new Error('Method not implemented.')
+  }
+
+  public get state(): RobotStateDto[] {
+    return this.map(it => ({
+      type: it.userData.type,
+      position: it.coords
+    }))
   }
 }

@@ -188,9 +188,9 @@ class ViewController {
     this.composer.addPass(this.renderPass)
     // start game
     // TODO (2022.12.05): This event must emit top window
-    this.mc.emit({
-      event: 'prepare'
-    })
+    // this.mc.emit({
+    //   event: 'prepare'
+    // })
     // TODO (2022.12.05): This event must emit top window
     this.mc.emit({
       event: 'change_turn',
@@ -221,11 +221,15 @@ class ViewController {
   }
 }
 
-try {
-  const vc = await new ViewController().make()
-  vc.start()
-} catch (err) {
-  console.error(err);
-  
-  throw new Error('Not implemented')
+async function main() {
+  try {
+    const vc = await new ViewController().make()
+    vc.start()
+  } catch (err) {
+    console.error(err);
+    
+    throw new Error('Not implemented')
+  }
 }
+
+main()

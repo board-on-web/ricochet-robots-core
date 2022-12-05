@@ -5,7 +5,7 @@ export async function loadTextures(loadingManager?: LoadingManager): Promise<Rec
   const textureLoader = new TextureLoader(loadingManager)
   const resourcesData = Object.entries(textures).map(async it => ({
     name: it[0],
-    texture: await textureLoader.loadAsync(it[1])
+    texture: await textureLoader.loadAsync(import.meta.env.VITE_APP_BASE_PATH + it[1])
   }))
   const resolvedResourcesData = await Promise.all(resourcesData)
 

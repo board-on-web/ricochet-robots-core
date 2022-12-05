@@ -6,7 +6,7 @@ export async function loadStlModels(loadingManager?: LoadingManager): Promise<Re
   const stlLoader = new STLLoader(loadingManager)
   const resourcesData = Object.entries(models).map(async it => ({
     name: it[0],
-    model: await stlLoader.loadAsync(it[1])
+    model: await stlLoader.loadAsync(import.meta.env.VITE_APP_BASE_PATH + it[1])
   }))
   const resolvedResourcesData = await Promise.all(resourcesData)
 

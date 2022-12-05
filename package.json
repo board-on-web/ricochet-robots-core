@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build --base /ricochet-robots-core/",
+    "build": "tsc && vite build --base /ricochet-robots-core/ --mode production",
     "preview": "vite preview"
   },
   "devDependencies": {
@@ -12,5 +12,8 @@
     "three": "^0.147.0",
     "typescript": "^4.6.4",
     "vite": "^3.2.3"
+  },
+  "dependencies": {
+    "@types/node": "^18.11.10"
   }
 }

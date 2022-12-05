@@ -13,6 +13,8 @@ export class RobotsController extends Array<Robot> {
         type: it.name,
         tint: it.tint
       }
+      // by default hide robots
+      robot.visible = false
 
       return robot
     })

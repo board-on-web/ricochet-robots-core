@@ -9,9 +9,7 @@ export class RoundController {
   private _targetToken: BoardTokens[number][number] | null = null
 
   constructor(tokens: BoardTokens, private readonly mc: MessagesController) {
-    this._targetTokens = tokens
-      .flat(2)
-      .sort(() => Math.random() - 0.5)
+    this._targetTokens = tokens.flat(2).sort(() => Math.random() - 0.5)
   }
 
   public changeTurn(turn: Turn) {

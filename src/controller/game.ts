@@ -15,6 +15,18 @@ export class GameController {
 
   private readonly messagesListener: ConstructorParameters<typeof MessagesController>[0] = (event) => {
     switch (event.data.event) {
+      /** Prepare board for new game */
+      case 'prepare': {
+        // prepare and place robots
+        const generatedPositions = this.generatePositions()
+        this.robots.forEach((robot, idx) => {
+          robot.visible = true
+          robot.moveTo(generatedPositions[idx])
+        })
+
+        break
+      }
+
       case 'change_turn': {
         switch (event.data.turn) {
           case 'prepare': {
@@ -73,11 +85,6 @@ export class GameController {
   ) {
     // hide after initial
     this.arrows.hide()
-
-    const generatedPositions = this.generatePositions()
-    this.robots.forEach((robot, idx) => {
-      robot.moveTo(generatedPositions[idx])
-    })
     // subsribe to game events
     window.addEventListener('message', this.messagesListener)
   }

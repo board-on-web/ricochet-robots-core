@@ -1,17 +1,14 @@
 import { BoardTokens } from "../models/board";
+import { MessagesController } from "./messages";
 
-type Turn = 'prepare' | 'planning' | 'waiting-better' | 'presentation'
+export type Turn = 'prepare' | 'planning' | 'waiting-better' | 'presentation'
 
 export class RoundController {
   private _turn: Turn = 'prepare'
   private _targetTokens: Array<BoardTokens[number][number]>
   private _targetToken: BoardTokens[number][number]
 
-  private _whenChangeTurn: ((turn: Turn) => void) | null = null
-  private _whenEndRound: (() => void) | null = null
-  private _whenEndGame: (() => void) | null = null
-
-  constructor(tokens: BoardTokens) {
+  constructor(tokens: BoardTokens, private readonly mc: MessagesController) {
     this._targetTokens = tokens
       .flat(2)
       .sort(() => Math.random() - 0.5)
@@ -22,33 +19,22 @@ export class RoundController {
 
   public changeTurn(turn: Turn) {
     this._turn = turn
-    this._whenChangeTurn?.(turn)
+    this.mc.emit({
+      event: 'change_turn',
+      turn
+    })
   }
 
   public nextToken() {
     const nextToken = this._targetTokens.pop()
 
     if (!nextToken) {
-      return this._whenEndGame?.()
+      return this.mc.emit({
+        event: 'end_game'
+      })
     }
 
     this._targetToken = nextToken
-  }
-
-  public whenEndRound(whenEndRound: () => void) {
-    this._whenEndRound = whenEndRound
-  }
-
-  public whenEndGame(whenEndGame: () => void) {
-    this._whenEndGame = whenEndGame
-  }
-
-  public whenChangeTurn(whenChangeTurn: (turn: Turn) => void) {
-    this._whenChangeTurn = whenChangeTurn
-  }
-
-  public emitEndRound() {
-    this._whenEndRound?.()
   }
 
   public get targetToken(): BoardTokens[number][number] {

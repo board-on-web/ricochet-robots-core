@@ -18,6 +18,7 @@ import { ArrowsController } from './controller/arrows'
 import { BoardController } from './controller/board'
 import { RobotsController } from './controller/robots'
 import { RoundController } from './controller/round'
+import { MessagesController } from './controller/messages'
 
 class ViewController {
   private scene = new SceneController()
@@ -36,6 +37,7 @@ class ViewController {
   private robots!: RobotsController
   private rc!: RoundController
   private gc!: GameController
+  private mc!: MessagesController
 
   private clickListener = (event: MouseEvent) => {
     const point: Vec2 = { x: event.clientX, y: event.clientY }
@@ -106,6 +108,30 @@ class ViewController {
     }
   }
 
+  private readonly messagesListener: ConstructorParameters<typeof MessagesController>[0] = (event) => {
+    switch (event.data.event) {
+      case 'change_turn': {
+        alert('Turn: ' + event.data.turn)
+
+        break
+      }
+
+      case 'end_turn': {
+        alert('End turn!')
+        this.rc.nextToken()
+        this.board.setTargetToken(this.rc.targetToken)
+
+        break
+      }
+
+      case 'end_game': {
+        alert('End of game!')
+
+        break
+      }
+    }
+  }
+
   public async make() {
     const [textures, models, arrow] = await Promise.all([
       loadTextures(this.loadingManager),
@@ -120,8 +146,11 @@ class ViewController {
     this.arrows = new ArrowsController(arrow)
     this.board = new BoardController(bd, btd, textures)
     this.robots = new RobotsController().make(rd, models)
-    this.rc = new RoundController(btd)
-    this.gc = new GameController(this.board, this.robots, this.arrows, this.rc)
+    this.mc = new MessagesController(this.messagesListener)
+    this.rc = new RoundController(btd, this.mc)
+    this.gc = new GameController(
+      this.board, this.robots, this.arrows, this.rc, this.mc
+    )
 
     this.prepare()
     this.makeListeners()
@@ -155,26 +184,12 @@ class ViewController {
     })
     // composer
     this.composer.addPass(this.renderPass)
-
+    // set initial target token
+    // TODO (2022.12.05): Setup it in listener
     this.board.setTargetToken(this.rc.targetToken)
   }
 
   private makeListeners() {
-    // end of round listener (after target robot place on target token)
-    this.rc.whenEndRound(() => {
-      alert('Win!')
-      this.rc.nextToken()
-      this.board.setTargetToken(this.rc.targetToken)
-    })
-    // end of game listener (tokens ends)
-    this.rc.whenEndGame(() => {
-      alert('End of game!')
-    })
-    // change turn listener
-    this.rc.whenChangeTurn((turn) => {
-      alert('Turn: ' + turn)
-    })
-
     // keypress listener
     window.addEventListener('keyup', this.keyupListener)
     // click listener

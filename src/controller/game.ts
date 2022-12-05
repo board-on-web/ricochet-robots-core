@@ -19,10 +19,8 @@ export class GameController {
       case 'prepare': {
         // prepare and place robots
         const generatedPositions = this.generatePositions()
-        this.robots.forEach((robot, idx) => {
-          robot.visible = true
-          robot.moveTo(generatedPositions[idx])
-        })
+        this.robots.forEach((robot, idx) => robot.moveTo(generatedPositions[idx]))
+        this.robots.show()
 
         break
       }
@@ -34,6 +32,16 @@ export class GameController {
         // restore tokens
         this.tc.restore(event.data.state)
 
+        break
+      }
+
+      case 'show-robots': {
+        this.robots.show()
+        break
+      }
+      
+      case 'hide-robots': {
+        this.robots.hide()
         break
       }
 

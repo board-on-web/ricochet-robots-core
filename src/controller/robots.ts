@@ -52,6 +52,18 @@ export class RobotsController extends Array<Robot> implements IState<Array<Robot
       : this[idx + 1]
   }
 
+  public show() {
+    this.forEach(it => {
+      it.visible = true
+    })
+  }
+
+  public hide() {
+    this.forEach(it => {
+      it.visible = false
+    })
+  }
+
   public restore(state: RobotStateDto[]): void {
     state.forEach(it => {
       const robot = this.find(robot => it.type === robot.userData.type)

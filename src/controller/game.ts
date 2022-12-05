@@ -57,6 +57,15 @@ export class GameController {
             // TODO (2022.12.05): Disable move robots
             this.board.removeTargetToken()
 
+            // emit current state
+            this.mc.emit({
+              event: 'commit_state',
+              state: {
+                ...this.tc.state,
+                robots: this.robots.state,
+              }
+            })
+
             // TODO (2022.12.05): This event must emit top window
             this.mc.emit({
               event: 'change_turn',
@@ -137,7 +146,10 @@ export class GameController {
           )
 
           if (this.tc.target && this.validateWin(this.selectedRobot, this.tc.target)) {
-            this.mc.emit({ event: 'change_turn', turn: 'end-round' })
+            this.mc.emit({
+              event: 'change_turn',
+              turn: 'end-round'
+            })
           }
         }
       })

@@ -57,10 +57,10 @@ export class RobotsController extends Array<Robot> implements IState<Array<Robot
       const robot = this.find(robot => it.type === robot.userData.type)
 
       if (robot) {
+        robot.visible = true
         robot.moveTo(it.position)
       }
     })
-    throw new Error('Method not implemented.')
   }
 
   public get state(): RobotStateDto[] {

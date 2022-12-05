@@ -27,6 +27,16 @@ export class GameController {
         break
       }
 
+      /** Prepare board for restored game */
+      case 'restore_state': {
+        // restore robots positions
+        this.robots.restore(event.data.state.robots)
+        // restore tokens
+        this.tc.restore(event.data.state)
+
+        break
+      }
+
       case 'change_turn': {
         switch (event.data.turn) {
           case 'prepare': {

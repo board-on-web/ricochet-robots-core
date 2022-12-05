@@ -17,7 +17,7 @@ import { RaycasterController } from './controller/raycaster'
 import { ArrowsController } from './controller/arrows'
 import { BoardController } from './controller/board'
 import { RobotsController } from './controller/robots'
-import { RoundController } from './controller/round'
+import { TokensController } from './controller/round'
 import { MessagesController } from './controller/messages'
 import { NotationsRenderer } from './controller/notation-renderer'
 
@@ -37,7 +37,7 @@ class ViewController {
   private arrows!: ArrowsController
   private board!: BoardController
   private robots!: RobotsController
-  private rc!: RoundController
+  private tc!: TokensController
   private gc!: GameController
   private mc!: MessagesController
 
@@ -142,9 +142,9 @@ class ViewController {
     this.board = new BoardController(bd, btd, textures)
     this.robots = new RobotsController().make(rd, models)
     this.mc = new MessagesController(this.messagesListener)
-    this.rc = new RoundController(btd, this.mc)
+    this.tc = new TokensController(btd, this.mc).prepare()
     this.gc = new GameController(
-      this.board, this.robots, this.arrows, this.rc, this.mc
+      this.board, this.robots, this.arrows, this.tc, this.mc
     )
 
     this.prepare()

@@ -7,7 +7,7 @@ import { RobotsController } from "./robots";
 import { Map } from "../models/map";
 import { BoardController } from "./board";
 import { ArrowsController } from "./arrows";
-import { RoundController } from "./round";
+import { TokensController } from "./round";
 import { MessagesController } from "./messages";
 
 export class GameController {
@@ -31,7 +31,7 @@ export class GameController {
         switch (event.data.turn) {
           case 'prepare': {
             // TODO (2022.12.05): Disable move robots
-            const nextToken = this.rc.makeNextToken()
+            const nextToken = this.tc.getNextToken()
             this.board.setTargetToken(nextToken)
 
             this.mc.emit({
@@ -80,7 +80,7 @@ export class GameController {
     private readonly board: BoardController,
     private readonly robots: RobotsController,
     private readonly arrows: ArrowsController,
-    private readonly rc: RoundController,
+    private readonly tc: TokensController,
     private readonly mc: MessagesController,
   ) {
     // hide after initial
@@ -136,7 +136,7 @@ export class GameController {
             this.robotDirection(this.selectedRobot)
           )
 
-          if (this.rc.targetToken && this.validateWin(this.selectedRobot, this.rc.targetToken)) {
+          if (this.tc.target && this.validateWin(this.selectedRobot, this.tc.target)) {
             this.mc.emit({ event: 'change_turn', turn: 'end-round' })
           }
         }

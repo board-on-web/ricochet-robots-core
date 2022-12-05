@@ -1,4 +1,4 @@
-import { Turn } from "../controller/round"
+import { Turn } from "../types/turn"
 import { BoardTokens } from "./board"
 import { State } from "./state"
 

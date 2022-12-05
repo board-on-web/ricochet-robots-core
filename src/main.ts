@@ -73,7 +73,6 @@ class ViewController {
 
         break
       }
-        
 
       case 'ArrowUp': {
         if (this.gc.hasSelectedRobot) {
@@ -112,21 +111,18 @@ class ViewController {
     switch (event.data.event) {
       case 'change_turn': {
         alert('Turn: ' + event.data.turn)
-
-        break
-      }
-
-      case 'end_turn': {
-        alert('End turn!')
-        this.rc.nextToken()
-        this.board.setTargetToken(this.rc.targetToken)
-
         break
       }
 
       case 'end_game': {
+        // TODO (2022.12.05): Enable any rotation
         alert('End of game!')
+        break
+      }
 
+      // TODO (2022.12.05): Top windown event, present next token for players
+      case 'next_token': {
+        alert('Next token: ' + event.data.token.token)
         break
       }
     }
@@ -184,9 +180,12 @@ class ViewController {
     })
     // composer
     this.composer.addPass(this.renderPass)
-    // set initial target token
-    // TODO (2022.12.05): Setup it in listener
-    this.board.setTargetToken(this.rc.targetToken)
+    // start game
+    // TODO (2022.12.05): This event must emit top window
+    this.mc.emit({
+      event: 'change_turn',
+      turn: 'prepare'
+    })
   }
 
   private makeListeners() {

@@ -1,20 +1,17 @@
 import { BoardTokens } from "../models/board";
 import { MessagesController } from "./messages";
 
-export type Turn = 'prepare' | 'planning' | 'waiting-better' | 'presentation'
+export type Turn = 'prepare' | 'planning' | 'presentation' | 'end-round'
 
 export class RoundController {
   private _turn: Turn = 'prepare'
   private _targetTokens: Array<BoardTokens[number][number]>
-  private _targetToken: BoardTokens[number][number]
+  private _targetToken: BoardTokens[number][number] | null = null
 
   constructor(tokens: BoardTokens, private readonly mc: MessagesController) {
     this._targetTokens = tokens
       .flat(2)
       .sort(() => Math.random() - 0.5)
-   
-    this.nextToken()
-    this._targetToken = this.targetToken
   }
 
   public changeTurn(turn: Turn) {
@@ -25,19 +22,20 @@ export class RoundController {
     })
   }
 
-  public nextToken() {
+  public makeNextToken(): BoardTokens[number][number] {
     const nextToken = this._targetTokens.pop()
 
     if (!nextToken) {
-      return this.mc.emit({
+      throw this.mc.emit({
         event: 'end_game'
       })
     }
 
     this._targetToken = nextToken
+    return this._targetToken
   }
 
-  public get targetToken(): BoardTokens[number][number] {
+  public get targetToken(): BoardTokens[number][number] | null {
     return this._targetToken
   }
 

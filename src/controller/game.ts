@@ -13,6 +13,57 @@ import { MessagesController } from "./messages";
 export class GameController {
   private map = new Map()
 
+  private readonly messagesListener: ConstructorParameters<typeof MessagesController>[0] = (event) => {
+    switch (event.data.event) {
+      case 'change_turn': {
+        switch (event.data.turn) {
+          case 'prepare': {
+            // TODO (2022.12.05): Disable move robots
+            const nextToken = this.rc.makeNextToken()
+            this.board.setTargetToken(nextToken)
+
+            this.mc.emit({
+              event: 'next_token',
+              token: nextToken
+            })
+
+            break
+          }
+
+          case 'planning': {
+            // TODO (2022.12.05): Disable move robots
+            // TODO (2022.12.05): Wait until best answer ready
+            break
+          }
+
+          case 'presentation': {
+            // TODO (2022.12.05): Enable move robots for best player
+            break
+          }
+
+          case 'end-round': {
+            // TODO (2022.12.05): Disable move robots
+            this.board.removeTargetToken()
+
+            // TODO (2022.12.05): This event must emit top window
+            this.mc.emit({
+              event: 'change_turn',
+              turn: 'prepare'
+            })
+          }
+        }
+
+        break
+      }
+
+      case 'end_game': {
+        // TODO (2022.12.05): Disable move robots
+
+        break
+      }
+    }
+  }
+
   constructor(
     private readonly board: BoardController,
     private readonly robots: RobotsController,
@@ -27,6 +78,8 @@ export class GameController {
     this.robots.forEach((robot, idx) => {
       robot.moveTo(generatedPositions[idx])
     })
+    // subsribe to game events
+    window.addEventListener('message', this.messagesListener)
   }
 
   public selectRobot(robot: Robot) {
@@ -76,8 +129,8 @@ export class GameController {
             this.robotDirection(this.selectedRobot)
           )
 
-          if (this.validateWin(this.selectedRobot, this.rc.targetToken)) {
-            this.mc.emit({ event: 'end_turn' })
+          if (this.rc.targetToken && this.validateWin(this.selectedRobot, this.rc.targetToken)) {
+            this.mc.emit({ event: 'change_turn', turn: 'end-round' })
           }
         }
       })

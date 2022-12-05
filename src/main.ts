@@ -132,7 +132,7 @@ class ViewController {
       loadTextures(this.loadingManager),
       loadStlModels(this.loadingManager),
       new SVGLoader(this.loadingManager)
-        .loadAsync('/arrow.svg')
+        .loadAsync(import.meta.env.VITE_APP_BASE_PATH + 'arrow.svg')
         // arrow.svg contains only 1 <path>
         .then(it => it.paths[0].toShapes(true))
         .then(it => new Arrow(it))

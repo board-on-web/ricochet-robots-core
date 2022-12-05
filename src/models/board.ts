@@ -3,6 +3,8 @@ import boardDescription from '../assets/boards/board_1.json'
 import boardTokensDescription from '../assets/boards/board_1_tokens.json'
 import { loadTextures } from "../utils/load-textures";
 import { Token } from "./token";
+import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer'
+import { Map } from "./map";
 
 export type BoardParts = typeof boardDescription
 export type BoardTokens = typeof boardTokensDescription
@@ -37,8 +39,11 @@ const CORNER_TEMPLATE = new Mesh(
   new BoxGeometry(WALL_HEIGHT, WALL_HEIGHT, WALL_TOP),
   WALL_MATERIALS
 )
+const NOTATION_OFFSET = 0.04
 
 export class Board extends Group {
+  private readonly map = new Map()
+
   constructor(parts: BoardParts, tokens: BoardTokens, textures: Awaited<ReturnType<typeof loadTextures>>) {
     super()
     
@@ -46,6 +51,8 @@ export class Board extends Group {
     this.rotation.x = -90 * (Math.PI / 180)
     // add walls on board
     this.add(...this.walls(parts, tokens, textures))
+    // add board notations
+    this.add(...this.notations)
   }
 
   private walls(partsModel: BoardParts, tokensModel: BoardTokens, textures: Awaited<ReturnType<typeof loadTextures>>) {
@@ -170,6 +177,29 @@ export class Board extends Group {
 
       return plane
     })
+  }
+
+  private get notations(): Array<CSS2DObject> {
+    return [
+      Array(BOARD_SIZE).fill(undefined).map((_, index) => {
+        const item = document.createElement('span')
+        item.innerText = String.fromCharCode(65 + index)
+
+        const object = new CSS2DObject(item)
+        const coords = this.map.positionByCoords({ x: 0 + index, y: 16 })
+        object.position.set(coords.x, coords.y + NOTATION_OFFSET, 0)
+        return object
+      }),
+      Array(BOARD_SIZE).fill(undefined).map((_, index) => {
+        const item = document.createElement('span')
+        item.innerText = String(index + 1).padStart(2, ' ') // &nbsp;
+
+        const object = new CSS2DObject(item)
+        const coords = this.map.positionByCoords({ x: -1, y: 15 - index })
+        object.position.set(coords.x - NOTATION_OFFSET, coords.y, 0)
+        return object
+      })
+    ].flat()
   }
 
   public get tokens(): Array<Token> {

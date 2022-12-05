@@ -3,7 +3,7 @@ import { PerspectiveCamera, Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 export class CameraController extends OrbitControls {
-  private initialPosition = new Vector3(0, 2.4, 0)
+  private initialPosition = new Vector3(0, 2.6, 0)
 
   constructor(private readonly camera: PerspectiveCamera, element: HTMLCanvasElement) {
     super(camera, element)

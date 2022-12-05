@@ -19,6 +19,7 @@ import { BoardController } from './controller/board'
 import { RobotsController } from './controller/robots'
 import { RoundController } from './controller/round'
 import { MessagesController } from './controller/messages'
+import { NotationsRenderer } from './controller/notation-renderer'
 
 class ViewController {
   private scene = new SceneController()
@@ -26,6 +27,7 @@ class ViewController {
   private renderer = new WebGLRenderer({
     antialias: true,
   })
+  private notationsRenderer = new NotationsRenderer()
   private composer = new EffectComposer(this.renderer)
   private renderPass = new RenderPass(this.scene, this.camera)
   private controls = new CameraController(this.camera, this.renderer.domElement)
@@ -110,19 +112,16 @@ class ViewController {
   private readonly messagesListener: ConstructorParameters<typeof MessagesController>[0] = (event) => {
     switch (event.data.event) {
       case 'change_turn': {
-        alert('Turn: ' + event.data.turn)
         break
       }
 
       case 'end_game': {
         // TODO (2022.12.05): Enable any rotation
-        alert('End of game!')
         break
       }
 
       // TODO (2022.12.05): Top windown event, present next token for players
       case 'next_token': {
-        alert('Next token: ' + event.data.token.token)
         break
       }
     }
@@ -150,17 +149,21 @@ class ViewController {
 
     this.prepare()
     this.makeListeners()
+
+    return this
   }
 
   public start() {
     const animate: XRFrameRequestCallback = (time: number) => {
       this.composer.render()
+      this.notationsRenderer.render(this.scene, this.camera)
       this.controls.update()
       Tween.update(time)
     }
     
     // dom
-    document.body.prepend(this.renderer.domElement)
+    document.body.append(this.renderer.domElement)
+    document.body.append(this.notationsRenderer.domElement)
     // start rendering
     this.renderer.setAnimationLoop(animate)
   }
@@ -172,10 +175,13 @@ class ViewController {
     // renderer
     this.renderer.setPixelRatio(window.devicePixelRatio)
     this.renderer.setSize(window.innerWidth, window.innerHeight)
+    this.notationsRenderer.setSize(window.innerWidth, window.innerHeight)
     // resize window listener
     window.addEventListener('resize', () => {
       this.renderer.setSize(window.innerWidth, window.innerHeight)
+      this.notationsRenderer.setSize(window.innerWidth, window.innerHeight)
       this.camera.aspect = window.innerWidth / window.innerHeight
+      this.camera.position.y = 5
       this.camera.updateProjectionMatrix()
     })
     // composer
@@ -212,9 +218,7 @@ class ViewController {
 }
 
 try {
-  const vc = new ViewController()
-  await vc.make()
-
+  const vc = await new ViewController().make()
   vc.start()
 } catch (err) {
   console.error(err);

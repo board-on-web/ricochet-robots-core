@@ -1,1 +1,1 @@
-export type Turn = 'prepare' | 'planning' | 'presentation' | 'end-round'
+export type Turn = 'set-token' | 'planning' | 'presentation' | 'end-round'

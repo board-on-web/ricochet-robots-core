@@ -47,7 +47,7 @@ export class GameController {
 
       case 'change_turn': {
         switch (event.data.turn) {
-          case 'prepare': {
+          case 'set-token': {
             // TODO (2022.12.05): Disable move robots
             const nextToken = this.tc.getNextToken()
             this.board.setTargetToken(nextToken)
@@ -87,7 +87,7 @@ export class GameController {
             // TODO (2022.12.05): This event must emit top window
             this.mc.emit({
               event: 'change_turn',
-              turn: 'prepare'
+              turn: 'set-token'
             })
           }
         }

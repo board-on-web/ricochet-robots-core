@@ -9,7 +9,6 @@ import { loadTextures } from './utils/load-textures'
 import { loadStlModels } from './utils/load-models'
 import { Robot } from './models/robot'
 import { GameController } from './controller/game'
-import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader'
 import { Arrow } from './models/arrow'
 import { CameraController } from './controller/camera'
 import { SceneController } from './controller/scene'
@@ -20,6 +19,7 @@ import { RobotsController } from './controller/robots'
 import { TokensController } from './controller/round'
 import { MessagesController } from './controller/messages'
 import { NotationsRenderer } from './controller/notation-renderer'
+import { loadSvgs } from './utils/load-svgs'
 
 class ViewController {
   private scene = new SceneController()
@@ -128,17 +128,14 @@ class ViewController {
   }
 
   public async make() {
-    const [textures, models, arrow] = await Promise.all([
+    const [textures, models, paths] = await Promise.all([
       loadTextures(this.loadingManager),
       loadStlModels(this.loadingManager),
-      new SVGLoader(this.loadingManager)
-        .loadAsync(import.meta.env.VITE_APP_BASE_PATH + 'arrow.svg')
-        // arrow.svg contains only 1 <path>
-        .then(it => it.paths[0].toShapes(true))
-        .then(it => new Arrow(it))
+      loadSvgs(this.loadingManager),
     ])
-
-    this.arrows = new ArrowsController(arrow)
+    
+    // arrow.svg contains only 1 <path>
+    this.arrows = new ArrowsController(new Arrow(paths['arrow'][0]))
     this.board = new BoardController(bd, btd, textures)
     this.robots = new RobotsController().make(rd, models)
     this.mc = new MessagesController(this.messagesListener)

@@ -8,10 +8,9 @@ export async function loadStlModels(loadingManager?: LoadingManager): Promise<Re
     name: it[0],
     model: await stlLoader.loadAsync(import.meta.env.VITE_APP_BASE_PATH + it[1])
   }))
-  const resolvedResourcesData = await Promise.all(resourcesData)
-
-  return resolvedResourcesData.reduce((acc, it) => ({
+  
+  return await Promise.all(resourcesData).then(it => it.reduce((acc, it) => ({
     ...acc,
     [it.name]: it.model
-  }), {} as Record<keyof typeof models, BufferGeometry>)
+  }), {} as Record<keyof typeof models, BufferGeometry>))
 }

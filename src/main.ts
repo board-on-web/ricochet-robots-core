@@ -178,7 +178,6 @@ class ViewController {
       this.renderer.setSize(window.innerWidth, window.innerHeight)
       this.notationsRenderer.setSize(window.innerWidth, window.innerHeight)
       this.camera.aspect = window.innerWidth / window.innerHeight
-      this.camera.position.y = 5
       this.camera.updateProjectionMatrix()
     })
     // composer

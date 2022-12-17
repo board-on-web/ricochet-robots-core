@@ -2,11 +2,6 @@ import { Turn } from "../types/turn"
 import { BoardTokens } from "./board"
 import { State } from "./state"
 
-export interface MessageRestoreState {
-  event: 'restore_state',
-  state: State
-}
-
 export interface MessageCommitState {
   event: 'commit_state',
   state: State
@@ -31,4 +26,3 @@ export type Message =
     | MessageEndGame
     | MessageNextToken
     | MessageCommitState
-    | MessageRestoreState

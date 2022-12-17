@@ -8,12 +8,12 @@ import { Map } from "../models/map";
 import { BoardController } from "./board";
 import { ArrowsController } from "./arrows";
 import { TokensController } from "./round";
-import { MessagesController } from "./messages";
+import { MessagesListener, MessagesController } from "./messages";
 
 export class GameController {
   private map = new Map()
 
-  private readonly messagesListener: ConstructorParameters<typeof MessagesController>[0] = (event) => {
+  private readonly messagesListener: MessagesListener = (event) => {
     switch (event.data.event) {
       /** Prepare board for new game */
       case 'prepare': {
@@ -113,7 +113,7 @@ export class GameController {
     // hide after initial
     this.arrows.hide()
     // subsribe to game events
-    window.addEventListener('message', this.messagesListener)
+    mc.subscribeToMessages(this.messagesListener)
   }
 
   public selectRobot(robot: Robot) {

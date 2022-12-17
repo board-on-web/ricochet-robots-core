@@ -17,7 +17,7 @@ import { ArrowsController } from './controller/arrows'
 import { BoardController } from './controller/board'
 import { RobotsController } from './controller/robots'
 import { TokensController } from './controller/round'
-import { MessagesController } from './controller/messages'
+import { MessagesListener, MessagesController } from './controller/messages'
 import { NotationsRenderer } from './controller/notation-renderer'
 import { loadSvgs } from './utils/load-svgs'
 
@@ -109,7 +109,7 @@ class ViewController {
     }
   }
 
-  private readonly messagesListener: ConstructorParameters<typeof MessagesController>[0] = (event) => {
+  private readonly messagesListener: MessagesListener = (event) => {
     switch (event.data.event) {
       case 'change_turn': {
         break
@@ -138,11 +138,13 @@ class ViewController {
     this.arrows = new ArrowsController(new Arrow(paths['arrow'][0]))
     this.board = new BoardController(bd, btd, textures)
     this.robots = new RobotsController().make(rd, models)
-    this.mc = new MessagesController(this.messagesListener)
+    this.mc = new MessagesController()
     this.tc = new TokensController(btd, this.mc).prepare()
     this.gc = new GameController(
       this.board, this.robots, this.arrows, this.tc, this.mc
     )
+
+    this.mc.subscribeToMessages(this.messagesListener)
 
     this.prepare()
     this.makeListeners()

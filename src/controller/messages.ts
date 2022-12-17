@@ -1,8 +1,10 @@
 import { IncomeMessage } from "../models/income-messages"
 import { Message } from "../models/messages"
 
+export type MessagesListener = (event: MessageEvent<Message | IncomeMessage>) => void
+
 export class MessagesController {
-  constructor(onMessage: (event: MessageEvent<Message | IncomeMessage>) => void) {
+  public subscribeToMessages(onMessage: MessagesListener) {
     window.addEventListener('message', onMessage)
   }
 

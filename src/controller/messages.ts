@@ -1,7 +1,6 @@
-import { IncomeMessage } from "../models/income-messages"
 import { Message } from "../models/messages"
 
-export type MessagesListener = (event: MessageEvent<Message | IncomeMessage>) => void
+export type MessagesListener = (event: MessageEvent<Message>) => void
 
 export class MessagesController {
   public subscribeToMessages(onMessage: MessagesListener) {

@@ -11,7 +11,7 @@ import { TokensController } from "./round";
 import { MessagesListener, MessagesController } from "./messages";
 
 export class GameController {
-  private map = new Map()
+  private readonly map = new Map()
 
   private readonly messagesListener: MessagesListener = (event) => {
     switch (event.data.event) {
@@ -35,19 +35,29 @@ export class GameController {
         break
       }
 
-      case 'show-robots': {
+      case 'disable_robots': {
+        // TODO (2022.12.05): Enable move robots
+        break
+      }
+
+      case 'enable_robots': {
+        // TODO (2022.12.05): Disable move robots
+        break
+      }
+
+      case 'show_robots': {
         this.robots.show()
         break
       }
       
-      case 'hide-robots': {
+      case 'hide_robots': {
         this.robots.hide()
         break
       }
 
       case 'change_turn': {
         switch (event.data.turn) {
-          case 'set-token': {
+          case 'set_token': {
             // TODO (2022.12.05): Disable move robots
             const nextToken = this.tc.getNextToken()
             this.board.setTargetToken(nextToken)
@@ -61,17 +71,16 @@ export class GameController {
           }
 
           case 'planning': {
-            // TODO (2022.12.05): Disable move robots
             // TODO (2022.12.05): Wait until best answer ready
             break
           }
 
           case 'presentation': {
-            // TODO (2022.12.05): Enable move robots for best player
+            // TODO (2022.12.05): Enable move robots only for best player
             break
           }
 
-          case 'end-round': {
+          case 'end_round': {
             // TODO (2022.12.05): Disable move robots
             this.board.removeTargetToken()
 
@@ -83,12 +92,6 @@ export class GameController {
                 robots: this.robots.state,
               }
             })
-
-            // TODO (2022.12.05): This event must emit top window
-            this.mc.emit({
-              event: 'change_turn',
-              turn: 'set-token'
-            })
           }
         }
 
@@ -97,7 +100,6 @@ export class GameController {
 
       case 'end_game': {
         // TODO (2022.12.05): Disable move robots
-
         break
       }
     }
@@ -166,7 +168,7 @@ export class GameController {
           if (this.tc.target && this.validateWin(this.selectedRobot, this.tc.target)) {
             this.mc.emit({
               event: 'change_turn',
-              turn: 'end-round'
+              turn: 'end_round'
             })
           }
         }

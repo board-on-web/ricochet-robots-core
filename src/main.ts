@@ -184,16 +184,6 @@ class ViewController {
     })
     // composer
     this.composer.addPass(this.renderPass)
-    // start game
-    // TODO (2022.12.05): This event must emit top window
-    // this.mc.emit({
-    //   event: 'prepare'
-    // })
-    // TODO (2022.12.05): This event must emit top window
-    this.mc.emit({
-      event: 'change_turn',
-      turn: 'set-token'
-    })
   }
 
   private makeListeners() {

@@ -1,19 +1,19 @@
-import { BoardTokens } from "../models/board";
+import { BoardToken, BoardTokens } from "../models/board";
 import { MessagesController } from "./messages";
 import { IState } from "./state";
 import { State } from "../models/state";
 import { TokenType } from "../types/token";
 
 export class TokensController implements IState<Omit<State, 'robots'>> {
-  private initialTokens: Array<BoardTokens[number][number]>
-  private _tokens: Array<BoardTokens[number][number]> = []
-  private _target: BoardTokens[number][number] | null = null
+  private initialTokens: Array<BoardToken>
+  private _tokens: Array<BoardToken> = []
+  private _target: BoardToken | null = null
 
   constructor(initialTokens: BoardTokens, private readonly mc: MessagesController) {
     this.initialTokens = initialTokens.flat(2).sort(() => Math.random() - 0.5)
   }
 
-  public getNextToken(): BoardTokens[number][number] {
+  public getNextToken(): BoardToken {
     const nextToken = this._tokens.pop()
 
     if (!nextToken) {
@@ -31,13 +31,13 @@ export class TokensController implements IState<Omit<State, 'robots'>> {
     return this
   }
 
-  public get target(): BoardTokens[number][number] | null {
+  public get target(): BoardToken | null {
     return this._target
   }
 
   public restore(state: Omit<State, "robots">): void {
-    this._tokens = state.tokens.map(it => this.initialTokens.find(initial => it === initial.token)).filter(Boolean) as Array<BoardTokens[number][number]>
-    this._target = this.initialTokens.find(initial => state.target === initial.token) as BoardTokens[number][number]
+    this._tokens = state.tokens.map(it => this.initialTokens.find(initial => it === initial.token)).filter(Boolean) as Array<BoardToken>
+    this._target = this.initialTokens.find(initial => state.target === initial.token) as BoardToken
 
     if (!this._target) {
       throw new Error('Cant restore tokens')

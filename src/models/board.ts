@@ -8,6 +8,7 @@ import { Map } from "./map";
 
 export type BoardParts = typeof boardDescription
 export type BoardTokens = typeof boardTokensDescription
+export type BoardToken = BoardTokens[number][number]
 
 export const BOARD_SIZE = 16
 export const BOARD_CELL_SIZE = 1 / BOARD_SIZE

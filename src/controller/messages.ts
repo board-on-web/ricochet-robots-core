@@ -10,5 +10,6 @@ export class MessagesController {
 
   public emit(event: Message) {
     window.postMessage(event)
+    window.top?.postMessage(event, import.meta.env.VITE_APP_GAME_ORIGIN)
   }
 }

@@ -1,4 +1,4 @@
-import { Board, BoardParts, BoardTokens, WALL_TOP } from "../models/board";
+import { Board, BoardParts, BoardToken, BoardTokens, WALL_TOP } from "../models/board";
 import { Token } from "../models/token";
 import { loadTextures } from "../utils/load-textures";
 
@@ -9,7 +9,7 @@ export class BoardController extends Board {
     super(parts, tokens, textures)
   }
 
-  public setTargetToken(token: BoardTokens[number][number]) {
+  public setTargetToken(token: BoardToken) {
     this.removeTargetToken()
 
     const target = new Token(token, this.textures)

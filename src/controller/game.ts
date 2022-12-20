@@ -1,6 +1,6 @@
 import { MathUtils, Object3D, Vec2 } from "three";
 import { Arrow } from "../models/arrow";
-import { BoardTokens, BOARD_SIZE } from "../models/board";
+import { BoardToken, BOARD_SIZE } from "../models/board";
 import { Robot } from "../models/robot";
 import { Direction } from "../types/direction";
 import { RobotsController } from "./robots";
@@ -203,7 +203,7 @@ export class GameController {
     )
   }
 
-  private validateWin(robot: Robot, target: BoardTokens[number][number]): boolean {
+  private validateWin(robot: Robot, target: BoardToken): boolean {
     return this.board.tokens.some(it =>
       target.token === it.userData.type
         && it.coords.x === robot.coords.x && it.coords.y === robot.coords.y 

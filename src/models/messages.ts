@@ -1,5 +1,5 @@
 import { Turn } from "../types/turn"
-import { BoardTokens } from "./board"
+import { BoardToken } from "./board"
 import { State } from "./state"
 
 export interface MessageCommitState {
@@ -18,7 +18,7 @@ interface MessageEndGame {
 
 interface MessageNextToken {
   event: 'next_token',
-  token: BoardTokens[number][number]
+  token: BoardToken
 }
 
 export type Message = 

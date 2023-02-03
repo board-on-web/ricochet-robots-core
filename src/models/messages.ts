@@ -2,11 +2,6 @@ import { Phase } from "../types/phase"
 import { BoardToken } from "./board"
 import { State } from "./state"
 
-type RestoreStateMessage = {
-  event: 'restore_state',
-  state: State
-}
-
 type PrepareGameMessage = {
   event: 'prepare'
 }
@@ -21,6 +16,11 @@ type ShowRobotsMessage = {
 
 export type CommitStateMessage = {
   event: 'commit_state',
+  state: State
+}
+
+type RestoreStateMessage = {
+  event: 'restore_state',
   state: State
 }
 
@@ -39,11 +39,11 @@ type EndGameMessage = {
 }
 
 export type Message = 
-  ChangePhaseMessage
-    | PrepareGameMessage
+  PrepareGameMessage
+    | NextTokenMessage
+    | ChangePhaseMessage
     | HideRobotsMessage
     | ShowRobotsMessage
-    | RestoreStateMessage
-    | NextTokenMessage
     | CommitStateMessage
+    | RestoreStateMessage
     | EndGameMessage

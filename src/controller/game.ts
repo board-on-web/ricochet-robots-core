@@ -118,7 +118,7 @@ export class GameController {
       .onStart(() => this.arrows.hide())
       .onComplete(() => {
         if (this.selectedRobot) {
-          this.arrows.moveToRobot(this.selectedRobot)
+          this.arrows.attachToRobot(this.selectedRobot)
           this.arrows.visibleByDirection(
             this.robotDirection(this.selectedRobot)
           )
@@ -126,7 +126,7 @@ export class GameController {
           if (this.tc.target && this.validateWin(this.selectedRobot, this.tc.target)) {
             this.mc.postMessage({
               event: 'change_phase',
-              phase: 'end_round'
+              phase: 'target_reached'
             })
           }
         }
@@ -152,7 +152,7 @@ export class GameController {
   private selectRobot(robot: Robot) {
     this.robots.setSelectedRobot(robot)
 
-    this.arrows.moveToRobot(robot)
+    this.arrows.attachToRobot(robot)
     this.arrows.visibleByDirection(
       this.robotDirection(robot)
     )

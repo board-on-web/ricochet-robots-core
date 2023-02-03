@@ -138,17 +138,18 @@ class ViewController {
             break
           }
 
-          case 'planning': {
-            break
-          }
-
           case 'presentation': {
             this.startListeners()
             break
           }
 
-          case 'end_round': {
+          case 'target_failed':
+          case 'target_reached': {
             this.cancelListeners()
+            break
+          }
+
+          case 'end_round': {
             this.gc.setPhaseEndRound()
             break
           }

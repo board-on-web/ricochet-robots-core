@@ -25,7 +25,7 @@ export class ArrowsController extends Group {
     this.add(...arrows)
   }
 
-  public moveToRobot(robot: Robot) {
+  public attachToRobot(robot: Robot) {
     this.position.x = robot.position.x
     this.position.z = robot.position.z
   }

@@ -169,7 +169,7 @@ class ViewController {
     // arrow.svg contains only 1 <path>
     this.arrows = new ArrowsController(new Arrow(paths['arrow'][0]))
     this.board = new BoardController(bd, btd, textures)
-    this.robots = new RobotsController(rd, models)
+    this.robots = new RobotsController().make(rd, models)
     this.mc = new MessagesController()
     this.tc = new TokensController(btd)
     this.gc = new GameController(
@@ -238,7 +238,7 @@ class ViewController {
   }
 
   private startListeners() {
-    this.cancelListeners()
+    // this.cancelListeners()
 
     // start keypress listener
     window.addEventListener('keyup', this.keyupListener)

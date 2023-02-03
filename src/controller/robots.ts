@@ -8,7 +8,7 @@ import { IState } from '../types/state'
 export class RobotsController extends Array<Robot> implements IState<Array<RobotStateDto>> {
   private _selectedRobot: Robot | null = null
 
-  constructor(robots: typeof robotsDescription, models: Awaited<ReturnType<typeof loadStlModels>>) {
+  public make(robots: typeof robotsDescription, models: Awaited<ReturnType<typeof loadStlModels>>) {
     const items = robots.map(it => {
       const robot = new Robot(models, new Color(it.color))
       robot.userData = {
@@ -20,8 +20,11 @@ export class RobotsController extends Array<Robot> implements IState<Array<Robot
 
       return robot
     })
+    
+    this.splice(0)
+    this.push(...items)
 
-    super(...items)
+    return this
   }
 
   public setSelectedRobot(robot: Robot) {

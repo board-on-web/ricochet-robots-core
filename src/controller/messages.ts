@@ -3,12 +3,11 @@ import { Message } from "../models/messages"
 export type MessagesListener = (event: MessageEvent<Message>) => void
 
 export class MessagesController {
-  public subscribeToMessages(onMessage: MessagesListener) {
+  public addMessagesListener(onMessage: MessagesListener) {
     window.addEventListener('message', onMessage)
   }
 
-  public emit(event: Message) {
+  public postMessage(event: Message) {
     window.postMessage(event)
-    window.top?.postMessage(event, import.meta.env.VITE_APP_GAME_ORIGIN)
   }
 }

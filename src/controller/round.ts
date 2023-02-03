@@ -1,6 +1,5 @@
 import { BoardToken, BoardTokens } from "../models/board";
-import { MessagesController } from "./messages";
-import { IState } from "./state";
+import { IState } from "../types/state";
 import { State } from "../models/state";
 import { TokenType } from "../types/token";
 
@@ -9,18 +8,12 @@ export class TokensController implements IState<Omit<State, 'robots'>> {
   private _tokens: Array<BoardToken> = []
   private _target: BoardToken | null = null
 
-  constructor(initialTokens: BoardTokens, private readonly mc: MessagesController) {
+  constructor(initialTokens: BoardTokens) {
     this.initialTokens = initialTokens.flat(2).sort(() => Math.random() - 0.5)
   }
 
-  public getNextToken(): BoardToken {
-    const nextToken = this._tokens.pop()
-
-    if (!nextToken) {
-      throw this.mc.emit({
-        event: 'end_game'
-      })
-    }
+  public makeNextToken(): BoardToken | null {
+    const nextToken = this._tokens.pop() || null
 
     this._target = nextToken
     return this._target

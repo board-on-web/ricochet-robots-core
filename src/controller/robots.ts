@@ -3,12 +3,12 @@ import robotsDescription from '../assets/robots.json'
 import { Robot } from '../models/robot'
 import { RobotStateDto } from '../models/state'
 import { loadStlModels } from '../utils/load-models'
-import { IState } from './state'
+import { IState } from '../types/state'
 
 export class RobotsController extends Array<Robot> implements IState<Array<RobotStateDto>> {
   private _selectedRobot: Robot | null = null
 
-  public make(robots: typeof robotsDescription, models: Awaited<ReturnType<typeof loadStlModels>>) {
+  constructor(robots: typeof robotsDescription, models: Awaited<ReturnType<typeof loadStlModels>>) {
     const items = robots.map(it => {
       const robot = new Robot(models, new Color(it.color))
       robot.userData = {
@@ -20,11 +20,8 @@ export class RobotsController extends Array<Robot> implements IState<Array<Robot
 
       return robot
     })
-    
-    this.splice(0)
-    this.push(...items)
 
-    return this
+    super(...items)
   }
 
   public setSelectedRobot(robot: Robot) {

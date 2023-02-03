@@ -1,4 +1,4 @@
-import { Turn } from "../types/turn"
+import { Phase } from "../types/phase"
 import { BoardToken } from "./board"
 import { State } from "./state"
 
@@ -9,14 +9,6 @@ type RestoreStateMessage = {
 
 type PrepareGameMessage = {
   event: 'prepare'
-}
-
-type DisableRobotsMessage = {
-  event: 'disable_robots'
-}
-
-type EnableRobotsMessage = {
-  event: 'enable_robots'
 }
 
 type HideRobotsMessage = {
@@ -32,9 +24,9 @@ export type CommitStateMessage = {
   state: State
 }
 
-export type ChangeTurnMessage = {
-  event: 'change_turn',
-  turn: Turn
+export type ChangePhaseMessage = {
+  event: 'change_phase',
+  phase: Phase
 }
 
 type NextTokenMessage = {
@@ -47,10 +39,8 @@ type EndGameMessage = {
 }
 
 export type Message = 
-  ChangeTurnMessage
+  ChangePhaseMessage
     | PrepareGameMessage
-    | DisableRobotsMessage
-    | EnableRobotsMessage
     | HideRobotsMessage
     | ShowRobotsMessage
     | RestoreStateMessage

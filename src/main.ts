@@ -22,26 +22,26 @@ import { NotationsRenderer } from './controller/notation-renderer'
 import { loadSvgs } from './utils/load-svgs'
 
 class ViewController {
-  private scene = new SceneController()
-  private camera = new PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
-  private renderer = new WebGLRenderer({
+  private readonly scene = new SceneController()
+  private readonly camera = new PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
+  private readonly renderer = new WebGLRenderer({
     antialias: true,
   })
-  private notationsRenderer = new NotationsRenderer()
-  private composer = new EffectComposer(this.renderer)
-  private renderPass = new RenderPass(this.scene, this.camera)
-  private controls = new CameraController(this.camera, this.renderer.domElement)
-  private raycaster = new RaycasterController()
-  private loadingManager = new LoadingManager()
+  private readonly notationsRenderer = new NotationsRenderer()
+  private readonly composer = new EffectComposer(this.renderer)
+  private readonly renderPass = new RenderPass(this.scene, this.camera)
+  private readonly controls = new CameraController(this.camera, this.renderer.domElement)
+  private readonly raycaster = new RaycasterController()
+  private readonly loadingManager = new LoadingManager()
   
   private arrows!: ArrowsController
   private board!: BoardController
   private robots!: RobotsController
-  private tc!: TokensController
   private gc!: GameController
+  private tc!: TokensController
   private mc!: MessagesController
 
-  private clickListener = (event: MouseEvent) => {
+  private readonly clickListener = (event: MouseEvent) => {
     const point: Vec2 = { x: event.clientX, y: event.clientY }
     const intersects = this.raycaster.intersects(this.scene, this.camera, point, this.renderer.domElement)
     
@@ -53,20 +53,17 @@ class ViewController {
     let target
 
     if ((target = intersects.find(it => it.object instanceof Arrow && it.object.visible))) {
-      this.beforeClickByArrow()
-      return this.gc.clickByArrow(target.object as Arrow)
+      return this.handleClickByArrow(target.object as Arrow)
     }
 
     if ((target = intersects.find(it => it.object instanceof Robot && it.object.visible))) {
-      this.beforeClickByRobot(target.object as Robot)
-      return this.gc.clickByRobot(target.object as Robot)
+      return this.handleClickByRobot(target.object as Robot)
     }
 
-    this.beforeMissClick()
-    return this.gc.clickMiss()
+    return this.handleMissClick()
   }
 
-  private keyupListener = (event: KeyboardEvent) => {
+  private readonly keyupListener = (event: KeyboardEvent) => {
     switch (event.code) {
       case 'ArrowLeft': {
         if (this.gc.hasSelectedRobot) {
@@ -101,8 +98,7 @@ class ViewController {
       }
 
       case 'Space': {
-        this.beforeClickByRobot(this.robots.nextRobot)
-        this.gc.setNextSelectedRobot()
+        this.handleClickByRobot(this.robots.nextRobot)
 
         break
       }
@@ -111,17 +107,53 @@ class ViewController {
 
   private readonly messagesListener: MessagesListener = (event) => {
     switch (event.data.event) {
-      case 'change_turn': {
+      case 'prepare': {
+        this.gc.prepare()
         break
       }
 
-      case 'end_game': {
-        // TODO (2022.12.05): Enable any rotation
+      case 'restore_state': {
+        this.gc.restoreState(event.data.state)
         break
       }
 
-      // TODO (2022.12.05): Top windown event, present next token for players
+      case 'show_robots': {
+        this.gc.showRobots()
+        break
+      }
+
+      case 'hide_robots': {
+        this.gc.hideRobots()
+        break
+      }
+
       case 'next_token': {
+        break
+      }
+
+      case 'change_phase': {
+        switch (event.data.phase) {
+          case 'prepare': {
+            this.gc.setPhasePrepare()
+            break
+          }
+
+          case 'planning': {
+            break
+          }
+
+          case 'presentation': {
+            this.startListeners()
+            break
+          }
+
+          case 'end_round': {
+            this.cancelListeners()
+            this.gc.setPhaseEndRound()
+            break
+          }
+        }
+
         break
       }
     }
@@ -137,17 +169,15 @@ class ViewController {
     // arrow.svg contains only 1 <path>
     this.arrows = new ArrowsController(new Arrow(paths['arrow'][0]))
     this.board = new BoardController(bd, btd, textures)
-    this.robots = new RobotsController().make(rd, models)
+    this.robots = new RobotsController(rd, models)
     this.mc = new MessagesController()
-    this.tc = new TokensController(btd, this.mc).prepare()
+    this.tc = new TokensController(btd)
     this.gc = new GameController(
       this.board, this.robots, this.arrows, this.tc, this.mc
     )
 
-    this.mc.subscribeToMessages(this.messagesListener)
-
-    this.prepare()
-    this.makeListeners()
+    this.mc.addMessagesListener(this.messagesListener)
+    this.prepareScene()
 
     return this
   }
@@ -167,7 +197,7 @@ class ViewController {
     this.renderer.setAnimationLoop(animate)
   }
 
-  private prepare() {
+  private prepareScene() {
     this.scene.add(
       ...this.gc.models
     )
@@ -186,26 +216,42 @@ class ViewController {
     this.composer.addPass(this.renderPass)
   }
 
-  private makeListeners() {
-    // keypress listener
-    window.addEventListener('keyup', this.keyupListener)
-    // click listener
-    this.renderer.domElement.addEventListener('click', this.clickListener)
-  }
-
-  private beforeMissClick() {
+  private handleMissClick() {
     this.controls.enabled = true
     this.scene.changeBackground()
+
+    return this.gc.clickMiss()
   }
 
-  private beforeClickByArrow() {
+  private handleClickByArrow(arrow: Arrow) {
     this.controls.enabled = false
+
+    return this.gc.clickByArrow(arrow)
   }
   
-  private beforeClickByRobot(robot: Robot) {
+  private handleClickByRobot(robot: Robot) {
     this.controls.enabled = false
     this.controls.toInitialPosition()
     this.scene.changeBackground(new Color(robot.userData.tint))
+
+    return this.gc.clickByRobot(robot)
+  }
+
+  private startListeners() {
+    this.cancelListeners()
+
+    // start keypress listener
+    window.addEventListener('keyup', this.keyupListener)
+    // start click listener
+    this.renderer.domElement.addEventListener('click', this.clickListener)
+  }
+
+  private cancelListeners() {
+    // remove keypress listener
+    window.removeEventListener('keyup', this.keyupListener)
+    // remove click listener
+    this.renderer.domElement.removeEventListener('click', this.clickListener)
+    this.handleMissClick()
   }
 }
 

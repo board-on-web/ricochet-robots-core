@@ -8,102 +8,14 @@ import { Map } from "../models/map";
 import { BoardController } from "./board";
 import { ArrowsController } from "./arrows";
 import { TokensController } from "./round";
-import { MessagesListener, MessagesController } from "./messages";
+import { MessagesController } from "./messages";
+import { State } from "../models/state";
+import { Phase } from "../types/phase";
 
 export class GameController {
   private readonly map = new Map()
 
-  private readonly messagesListener: MessagesListener = (event) => {
-    switch (event.data.event) {
-      /** Prepare board for new game */
-      case 'prepare': {
-        // prepare and place robots
-        const generatedPositions = this.generatePositions()
-        this.robots.forEach((robot, idx) => robot.moveTo(generatedPositions[idx]))
-        this.robots.show()
-
-        break
-      }
-
-      /** Prepare board for restored game */
-      case 'restore_state': {
-        // restore robots positions
-        this.robots.restore(event.data.state.robots)
-        // restore tokens
-        this.tc.restore(event.data.state)
-
-        break
-      }
-
-      case 'disable_robots': {
-        // TODO (2022.12.05): Enable move robots
-        break
-      }
-
-      case 'enable_robots': {
-        // TODO (2022.12.05): Disable move robots
-        break
-      }
-
-      case 'show_robots': {
-        this.robots.show()
-        break
-      }
-      
-      case 'hide_robots': {
-        this.robots.hide()
-        break
-      }
-
-      case 'change_turn': {
-        switch (event.data.turn) {
-          case 'set_token': {
-            // TODO (2022.12.05): Disable move robots
-            const nextToken = this.tc.getNextToken()
-            this.board.setTargetToken(nextToken)
-
-            this.mc.emit({
-              event: 'next_token',
-              token: nextToken
-            })
-
-            break
-          }
-
-          case 'planning': {
-            // TODO (2022.12.05): Wait until best answer ready
-            break
-          }
-
-          case 'presentation': {
-            // TODO (2022.12.05): Enable move robots only for best player
-            break
-          }
-
-          case 'end_round': {
-            // TODO (2022.12.05): Disable move robots
-            this.board.removeTargetToken()
-
-            // emit current state
-            this.mc.emit({
-              event: 'commit_state',
-              state: {
-                ...this.tc.state,
-                robots: this.robots.state,
-              }
-            })
-          }
-        }
-
-        break
-      }
-
-      case 'end_game': {
-        // TODO (2022.12.05): Disable move robots
-        break
-      }
-    }
-  }
+  private _phase: Phase | null = null
 
   constructor(
     private readonly board: BoardController,
@@ -114,22 +26,68 @@ export class GameController {
   ) {
     // hide after initial
     this.arrows.hide()
-    // subsribe to game events
-    mc.subscribeToMessages(this.messagesListener)
   }
 
-  public selectRobot(robot: Robot) {
-    this.robots.setSelectedRobot(robot)
-
-    this.arrows.moveToRobot(robot)
-    this.arrows.visibleByDirection(
-      this.robotDirection(robot)
-    )
+  /** prepare board for new game */
+  public prepare() {
+    // prepare and place robots
+    const generatedPositions = this.generatePositions()
+    this.robots.forEach((robot, idx) => robot.moveTo(generatedPositions[idx]))
+    this.robots.show()
+    // prepare tokens
+    this.tc.prepare()
   }
 
-  public unselectRobot() {
-    this.robots.clearSelectedRobot()
-    this.arrows.hide()
+  /** prepare board for restored game */
+  public restoreState(state: State) {
+    // restore robots positions
+    this.robots.restore(state.robots)
+    // restore tokens
+    this.tc.restore(state)
+  }
+
+  public showRobots() {
+    this.robots.show()
+  }
+
+  public hideRobots() {
+    this.robots.hide()
+  }
+
+  public setPhaseEndRound() {
+    this._phase = 'end_round'
+
+    this.board.removeTargetToken()
+
+    // commit current state
+    this.mc.postMessage({
+      event: 'commit_state',
+      state: {
+        ...this.tc.state,
+        robots: this.robots.state,
+      }
+    })
+  }
+
+  public setPhasePrepare() {
+    this._phase = 'prepare'
+    this.setNextToken()
+  }
+
+  public setNextToken(nextToken = this.tc.makeNextToken()) {
+    if (!nextToken) {
+      return this.mc.postMessage({
+        event: 'end_game'
+      })
+    }
+
+    this.board.setTargetToken(nextToken)
+
+    // set next token
+    this.mc.postMessage({
+      event: 'next_token',
+      token: nextToken
+    })
   }
 
   public clickByRobot(robot: Robot) {
@@ -166,9 +124,9 @@ export class GameController {
           )
 
           if (this.tc.target && this.validateWin(this.selectedRobot, this.tc.target)) {
-            this.mc.emit({
-              event: 'change_turn',
-              turn: 'end_round'
+            this.mc.postMessage({
+              event: 'change_phase',
+              phase: 'end_round'
             })
           }
         }
@@ -179,16 +137,30 @@ export class GameController {
     return Boolean(this.selectedRobot)
   }
 
-  public setNextSelectedRobot() {
-    this.selectRobot(this.robots.nextRobot)
-  }
-
   public get models(): Array<Object3D> {
     return [
       this.board,
       this.arrows,
       ...this.robots,
     ]
+  }
+
+  public get phase(): typeof this._phase {
+    return this._phase
+  }
+
+  private selectRobot(robot: Robot) {
+    this.robots.setSelectedRobot(robot)
+
+    this.arrows.moveToRobot(robot)
+    this.arrows.visibleByDirection(
+      this.robotDirection(robot)
+    )
+  }
+
+  private unselectRobot() {
+    this.robots.clearSelectedRobot()
+    this.arrows.hide()
   }
 
   private generatePositions(): Array<Vec2> {

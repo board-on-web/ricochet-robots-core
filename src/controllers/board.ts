@@ -9,7 +9,7 @@ export class BoardController extends Board {
     super(parts, tokens, textures)
   }
 
-  public setTargetToken(token: BoardToken) {
+  public set targetToken(token: BoardToken) {
     this.removeTargetToken()
 
     const target = new Token(token, this.textures)

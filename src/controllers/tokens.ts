@@ -8,6 +8,10 @@ export class TokensController implements IState<Omit<State, 'robots'>> {
 
   constructor(public readonly tokens: BoardToken[]) {}
 
+  public set target(target: BoardToken | null) {
+    this._target = target;
+  }
+
   public get target(): BoardToken | null {
     return this._target
   }

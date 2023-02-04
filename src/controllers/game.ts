@@ -101,7 +101,8 @@ export class GameController {
   }
 
   public setTargetToken(token: BoardToken) {
-    this.board.setTargetToken(token)
+    this.tc.target = token
+    this.board.targetToken = token
   }
 
   public clickByRobot(robot: Robot) {

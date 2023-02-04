@@ -1,5 +1,5 @@
 import Tween from "@tweenjs/tween.js"
-import { PerspectiveCamera, WebGLRenderer, LoadingManager, Vec2, Color } from "three"
+import { PerspectiveCamera, WebGLRenderer, LoadingManager, Vec2, Color, Vector3 } from "three"
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer"
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass"
 import { Arrow } from "../models/arrow"
@@ -9,7 +9,6 @@ import { loadSvgs } from "../utils/load-svgs"
 import { loadTextures } from "../utils/load-textures"
 import { ArrowsController } from "./arrows"
 import { BoardController } from "./board"
-import { CameraController } from "./camera"
 import { GameController } from "./game"
 import { MessagesController, MessagesListener } from "./messages"
 import { NotationsRenderer } from "./notation-renderer"
@@ -21,6 +20,7 @@ import { SceneController } from "./scene"
 import bd from '../assets/boards/board_1.json'
 import btd from '../assets/boards/board_1_tokens.json'
 import rd from '../assets/robots.json'
+import cameraDescription from '../assets/camera.json'
 
 export class ViewController {
   private readonly scene = new SceneController()
@@ -31,7 +31,6 @@ export class ViewController {
   private readonly notationsRenderer = new NotationsRenderer()
   private readonly composer = new EffectComposer(this.renderer)
   private readonly renderPass = new RenderPass(this.scene, this.camera)
-  private readonly controls = new CameraController(this.camera, this.renderer.domElement)
   private readonly raycaster = new RaycasterController()
   private readonly loadingManager = new LoadingManager()
   
@@ -205,7 +204,6 @@ export class ViewController {
     const animate: XRFrameRequestCallback = (time: number) => {
       this.composer.render()
       this.notationsRenderer.render(this.scene, this.camera)
-      this.controls.update()
       Tween.update(time)
     }
     
@@ -220,6 +218,9 @@ export class ViewController {
     this.scene.add(
       ...this.gc.models
     )
+    // camera
+    this.camera.position.fromArray(cameraDescription.position)
+    this.camera.lookAt(new Vector3().fromArray(cameraDescription.look_at))
     // renderer
     this.renderer.setPixelRatio(window.devicePixelRatio)
     this.renderer.setSize(window.innerWidth, window.innerHeight)
@@ -236,21 +237,16 @@ export class ViewController {
   }
 
   private handleMissClick() {
-    this.controls.enabled = true
     this.scene.changeBackground()
 
     return this.gc.clickMiss()
   }
 
   private handleClickByArrow(arrow: Arrow) {
-    this.controls.enabled = false
-
     return this.gc.clickByArrow(arrow)
   }
   
   private handleClickByRobot(robot: Robot) {
-    this.controls.enabled = false
-    this.controls.toInitialPosition()
     this.scene.changeBackground(new Color(robot.userData.tint))
 
     return this.gc.clickByRobot(robot)

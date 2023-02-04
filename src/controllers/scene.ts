@@ -10,7 +10,7 @@ export class SceneController extends Scene {
 
   public changeBackground(color: Color = new Color('#D7CCC8')) {
     if (!this.background) {
-      this.background = new Color('black')
+      this.background = color
     }
 
     new Tween(this.background)

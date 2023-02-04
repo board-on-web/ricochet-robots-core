@@ -1,9 +1,22 @@
+import { Vec2 } from "three"
 import { Phase } from "../types/phase"
 import { BoardToken } from "./board"
 import { State } from "./state"
 
 type PrepareGameMessage = {
   event: 'prepare'
+  // initial robots positions
+  positions: Vec2[]
+}
+
+type CmdGeneratePositionsMessage = {
+  event: 'cmd:generate_positions'
+}
+
+type GeneratePositionsMessage = {
+  event: 'generate_positions'
+  // initial robots positions
+  positions: Vec2[]
 }
 
 type HideRobotsMessage = {
@@ -41,6 +54,8 @@ type EndGameMessage = {
 export type Message = 
   PrepareGameMessage
     | SetTokenMessage
+    | CmdGeneratePositionsMessage
+    | GeneratePositionsMessage
     | ChangePhaseMessage
     | HideRobotsMessage
     | ShowRobotsMessage

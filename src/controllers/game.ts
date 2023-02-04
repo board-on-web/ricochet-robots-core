@@ -1,7 +1,7 @@
 import { MathUtils, Object3D, Vec2 } from "three";
 import { Arrow } from "../models/arrow";
 import { BoardToken, BOARD_SIZE } from "../models/board";
-import { Robot } from "../models/robot";
+import { Robot, ROBOTS_COUNT } from "../models/robot";
 import { Direction } from "../types/direction";
 import { RobotsController } from "./robots";
 import { Map } from "../models/map";
@@ -14,6 +14,8 @@ import { Phase } from "../types/phase";
 
 export class GameController {
   private readonly map = new Map()
+
+  private _lastState: State | null = null
 
   private _phase: Phase | null = null
 
@@ -29,13 +31,21 @@ export class GameController {
   }
 
   /** prepare board for new game */
-  public prepare() {
-    // prepare and place robots
-    const generatedPositions = this.generatePositions()
-    this.robots.forEach((robot, idx) => robot.moveTo(generatedPositions[idx]))
+  public prepare(positions: Vec2[]) {
+    this.robots.forEach((robot, idx) => robot.moveTo(positions[idx]))
     this.robots.show()
-    // prepare tokens
-    this.tc.prepare()
+  }
+
+  public generateRobotsPositions() {
+    const positions = this.generatePositions()
+    this.mc.postMessage({
+      event: 'generate_positions',
+      positions,
+    })
+  }
+
+  public commitState(state: State) {
+    throw new Error('Not implemented')
   }
 
   /** prepare board for restored game */
@@ -44,6 +54,22 @@ export class GameController {
     this.robots.restore(state.robots)
     // restore tokens
     this.tc.restore(state)
+  }
+
+  public commitLocallyState(state: State) {
+    this._lastState = state
+  }
+
+  /** prepare board for restored game */
+  public restoreLocallyState() {
+    if (!this._lastState) {
+      return
+    }
+
+    // restore robots positions
+    this.robots.restore(this._lastState.robots)
+    // restore tokens
+    this.tc.restore(this._lastState)
   }
 
   public showRobots() {
@@ -155,7 +181,7 @@ export class GameController {
         .filter(Boolean) as Array<Vec2>
     })
 
-    return Array(5).fill(undefined).map(() => 
+    return Array(ROBOTS_COUNT).fill(undefined).map(() => 
       mapCoords.splice(MathUtils.randInt(0, mapCoords.length - 1), 1)[0]
     )
   }

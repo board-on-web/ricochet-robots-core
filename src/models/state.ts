@@ -9,6 +9,5 @@ export interface RobotStateDto {
 
 export interface State {
   robots: Array<RobotStateDto>
-  tokens: Array<TokenType>
   target: TokenType
 }

@@ -108,9 +108,18 @@ export class ViewController {
 
   private readonly messagesListener: MessagesListener = (event) => {
     switch (event.data.event) {
-      case 'prepare': {
-        this.gc.prepare()
+      case 'cmd:generate_positions': {
+        this.gc.generateRobotsPositions()
         break
+      }
+
+      case 'prepare': {
+        this.gc.prepare(event.data.positions)
+        break
+      }
+
+      case 'commit_state': {
+        this.gc.commitLocallyState(event.data.state)
       }
 
       case 'restore_state': {
@@ -140,8 +149,13 @@ export class ViewController {
             break
           }
 
+          case 'awaiting': {
+            this.gc.restoreLocallyState()
+            this.cancelListeners()
+            break
+          }
+
           case 'planning':
-          case 'awaiting':
           case 'target_failed':
           case 'target_reached': {
             this.cancelListeners()
@@ -171,7 +185,7 @@ export class ViewController {
     this.board = new BoardController(bd, btd, textures)
     this.robots = new RobotsController().make(rd, models)
     this.mc = new MessagesController()
-    this.tc = new TokensController(btd)
+    this.tc = new TokensController(btd.flat())
     this.gc = new GameController(
       this.board, this.robots, this.arrows, this.tc, this.mc
     )

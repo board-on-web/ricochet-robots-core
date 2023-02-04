@@ -3,6 +3,8 @@ import { Box3, Color, Material, Mesh, MeshBasicMaterial, Vec2 } from "three";
 import { loadStlModels } from "../utils/load-models";
 import { Map } from "./map";
 
+export const ROBOTS_COUNT = 5
+
 export class Robot extends Mesh {
   private boardDescription = new Map()
 

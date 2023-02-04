@@ -1,46 +1,24 @@
-import { BoardToken, BoardTokens } from "../models/board";
+import { BoardToken } from "../models/board";
 import { IState } from "../types/state";
 import { State } from "../models/state";
 import { TokenType } from "../types/token";
 
 export class TokensController implements IState<Omit<State, 'robots'>> {
-  private initialTokens: Array<BoardToken>
-  private _tokens: Array<BoardToken> = []
   private _target: BoardToken | null = null
 
-  constructor(initialTokens: BoardTokens) {
-    this.initialTokens = initialTokens.flat(2).sort(() => Math.random() - 0.5)
-  }
-
-  public makeNextToken(): BoardToken | null {
-    const nextToken = this._tokens.pop() || null
-
-    this._target = nextToken
-    return this._target
-  }
-
-  public prepare(): this {
-    this._tokens = this.initialTokens.slice()
-    return this
-  }
+  constructor(private tokens: BoardToken[]) {}
 
   public get target(): BoardToken | null {
     return this._target
   }
 
   public restore(state: Omit<State, "robots">): void {
-    this._tokens = state.tokens.map(it => this.initialTokens.find(initial => it === initial.token)).filter(Boolean) as Array<BoardToken>
-    this._target = this.initialTokens.find(initial => state.target === initial.token) as BoardToken
-
-    if (!this._target) {
-      throw new Error('Cant restore tokens')
-    }
+    this._target = this.tokens.find(it => state.target === it.token) as BoardToken
   }
 
   public get state(): Omit<State, "robots"> {
     return {
       target: this._target?.token as TokenType,
-      tokens: this._tokens.map(it => it.token as TokenType)
     }
   }
 }

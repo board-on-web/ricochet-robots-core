@@ -6,7 +6,7 @@ import { TokenType } from "../types/token";
 export class TokensController implements IState<Omit<State, 'robots'>> {
   private _target: BoardToken | null = null
 
-  constructor(private tokens: BoardToken[]) {}
+  constructor(public readonly tokens: BoardToken[]) {}
 
   public get target(): BoardToken | null {
     return this._target

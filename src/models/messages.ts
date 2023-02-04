@@ -3,20 +3,29 @@ import { Phase } from "../types/phase"
 import { BoardToken } from "./board"
 import { State } from "./state"
 
-type PrepareGameMessage = {
-  event: 'prepare'
-  // initial robots positions
-  positions: Vec2[]
-}
-
 type CmdGeneratePositionsMessage = {
   event: 'cmd:generate_positions'
+}
+
+type CmdGetTokensMessage = {
+  event: 'cmd:get_tokens'
+}
+
+type SetRobotsPositionsGameMessage = {
+  event: 'set_robots_positions'
+  // initial robots positions
+  positions: Vec2[]
 }
 
 type GeneratePositionsMessage = {
   event: 'generate_positions'
   // initial robots positions
   positions: Vec2[]
+}
+
+type GetTokensMessage = {
+  event: 'get_tokens'
+  tokens: BoardToken[]
 }
 
 type HideRobotsMessage = {
@@ -52,13 +61,15 @@ type EndGameMessage = {
 }
 
 export type Message = 
-  PrepareGameMessage
+  SetRobotsPositionsGameMessage
     | SetTokenMessage
-    | CmdGeneratePositionsMessage
     | GeneratePositionsMessage
+    | GetTokensMessage
     | ChangePhaseMessage
     | HideRobotsMessage
     | ShowRobotsMessage
     | CommitStateMessage
     | RestoreStateMessage
     | EndGameMessage
+    | CmdGeneratePositionsMessage
+    | CmdGetTokensMessage

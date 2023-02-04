@@ -15,7 +15,7 @@ import { MessagesController, MessagesListener } from "./messages"
 import { NotationsRenderer } from "./notation-renderer"
 import { RaycasterController } from "./raycaster"
 import { RobotsController } from "./robots"
-import { TokensController } from "./round"
+import { TokensController } from "./tokens"
 import { SceneController } from "./scene"
 
 import bd from '../assets/boards/board_1.json'
@@ -113,8 +113,13 @@ export class ViewController {
         break
       }
 
-      case 'prepare': {
-        this.gc.prepare(event.data.positions)
+      case 'cmd:get_tokens': {
+        this.gc.sendTokens()
+        break
+      }
+
+      case 'set_robots_positions': {
+        this.gc.setRobotsPositions(event.data.positions)
         break
       }
 

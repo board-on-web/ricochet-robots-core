@@ -7,7 +7,7 @@ import { RobotsController } from "./robots";
 import { Map } from "../models/map";
 import { BoardController } from "./board";
 import { ArrowsController } from "./arrows";
-import { TokensController } from "./round";
+import { TokensController } from "./tokens";
 import { MessagesController } from "./messages";
 import { State } from "../models/state";
 import { Phase } from "../types/phase";
@@ -30,8 +30,7 @@ export class GameController {
     this.arrows.hide()
   }
 
-  /** prepare board for new game */
-  public prepare(positions: Vec2[]) {
+  public setRobotsPositions(positions: Vec2[]) {
     this.robots.forEach((robot, idx) => robot.moveTo(positions[idx]))
     this.robots.show()
   }
@@ -44,11 +43,17 @@ export class GameController {
     })
   }
 
+  public sendTokens() {
+    this.mc.postMessage({
+      event: 'get_tokens',
+      tokens: this.tc.tokens,
+    })
+  }
+
   public commitState(state: State) {
     throw new Error('Not implemented')
   }
 
-  /** prepare board for restored game */
   public restoreState(state: State) {
     // restore robots positions
     this.robots.restore(state.robots)

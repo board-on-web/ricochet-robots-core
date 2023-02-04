@@ -9,11 +9,11 @@ export class RobotsController extends Array<Robot> implements IState<Array<Robot
   private _selectedRobot: Robot | null = null
 
   public make(robots: typeof robotsDescription, models: Awaited<ReturnType<typeof loadStlModels>>) {
-    const items = robots.map(it => {
-      const robot = new Robot(models, new Color(it.color))
+    const items = Object.entries(robots).map(([name, value]) => {
+      const robot = new Robot(models, new Color(value.color))
       robot.userData = {
-        type: it.name,
-        tint: it.tint
+        robot: name,
+        tint: value.tint
       }
       // by default hide robots
       robot.visible = false
@@ -66,7 +66,7 @@ export class RobotsController extends Array<Robot> implements IState<Array<Robot
 
   public restore(state: RobotStateDto[]): void {
     state.forEach(it => {
-      const robot = this.find(robot => it.type === robot.userData.type)
+      const robot = this.find(robot => it.robot === robot.userData.robot)
 
       if (robot) {
         robot.visible = true
@@ -77,7 +77,7 @@ export class RobotsController extends Array<Robot> implements IState<Array<Robot
 
   public get state(): RobotStateDto[] {
     return this.map(it => ({
-      type: it.userData.type,
+      robot: it.userData.robot,
       position: it.coords
     }))
   }

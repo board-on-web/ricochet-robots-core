@@ -2,9 +2,6 @@ import { Easing, Tween } from "@tweenjs/tween.js";
 import { Box3, Color, Material, Mesh, MeshBasicMaterial, Vec2 } from "three";
 import { loadStlModels } from "../utils/load-models";
 import { Map } from "./map";
-import robotsDescription from '../assets/robots.json'
-
-export type RobotsDescription = typeof robotsDescription
 
 export class Robot extends Mesh {
   private boardDescription = new Map()

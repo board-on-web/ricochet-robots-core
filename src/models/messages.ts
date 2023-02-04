@@ -29,8 +29,8 @@ export type ChangePhaseMessage = {
   phase: Phase
 }
 
-type NextTokenMessage = {
-  event: 'next_token',
+type SetTokenMessage = {
+  event: 'set_token',
   token: BoardToken
 }
 
@@ -40,7 +40,7 @@ type EndGameMessage = {
 
 export type Message = 
   PrepareGameMessage
-    | NextTokenMessage
+    | SetTokenMessage
     | ChangePhaseMessage
     | HideRobotsMessage
     | ShowRobotsMessage

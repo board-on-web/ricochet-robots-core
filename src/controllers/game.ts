@@ -69,25 +69,8 @@ export class GameController {
     })
   }
 
-  public setPhasePrepare() {
-    this._phase = 'prepare'
-    this.setNextToken()
-  }
-
-  public setNextToken(nextToken = this.tc.makeNextToken()) {
-    if (!nextToken) {
-      return this.mc.postMessage({
-        event: 'end_game'
-      })
-    }
-
-    this.board.setTargetToken(nextToken)
-
-    // set next token
-    this.mc.postMessage({
-      event: 'next_token',
-      token: nextToken
-    })
+  public setTargetToken(token: BoardToken) {
+    this.board.setTargetToken(token)
   }
 
   public clickByRobot(robot: Robot) {
@@ -181,7 +164,7 @@ export class GameController {
     return this.board.tokens.some(it =>
       target.token === it.userData.type
         && it.coords.x === robot.coords.x && it.coords.y === robot.coords.y 
-        && it.userData.color.includes(robot.userData.type)
+        && it.userData.color.includes(robot.userData.robot)
     )
   }
 

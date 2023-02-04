@@ -1,9 +1,9 @@
 import { Vec2 } from "three"
-import { RobotColor } from "../types/robot"
 import { TokenType } from "../types/token"
+import robotsDescription from '../assets/robots.json'
 
 export interface RobotStateDto {
-  type: RobotColor
+  robot: keyof typeof robotsDescription
   position: Vec2
 }
 

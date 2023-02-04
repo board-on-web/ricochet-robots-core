@@ -1,6 +1,6 @@
 import { BufferGeometry, LoadingManager } from "three";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader";
-import models from '../assets/stls.json'
+import models from '../assets/models.json'
 
 export async function loadStlModels(loadingManager?: LoadingManager): Promise<Record<keyof typeof models, BufferGeometry>> {
   const stlLoader = new STLLoader(loadingManager)

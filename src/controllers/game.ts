@@ -141,8 +141,7 @@ export class GameController {
 
           if (this.tc.target && this.validateWin(this.selectedRobot, this.tc.target)) {
             this.mc.postMessage({
-              event: 'change_phase',
-              phase: 'target_reached'
+              event: 'target_reached'
             })
           }
         }

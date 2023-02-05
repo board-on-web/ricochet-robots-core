@@ -160,8 +160,7 @@ export class ViewController {
           }
 
           case 'planning':
-          case 'target_failed':
-          case 'target_reached': {
+          case 'awaiting': {
             this.cancelListeners()
             break
           }

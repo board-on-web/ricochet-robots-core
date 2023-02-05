@@ -36,7 +36,7 @@ type ShowRobotsMessage = {
   event: 'show_robots'
 }
 
-export type CommitStateMessage = {
+type CommitStateMessage = {
   event: 'commit_state',
   state: State
 }
@@ -46,7 +46,15 @@ type RestoreStateMessage = {
   state: State
 }
 
-export type ChangePhaseMessage = {
+type TargetReachedMessage = {
+  event: 'target_reached'
+}
+
+type TargetFailedMessage = {
+  event: 'target_failed'
+}
+
+type ChangePhaseMessage = {
   event: 'change_phase',
   phase: Phase
 }
@@ -70,6 +78,8 @@ export type Message =
     | ShowRobotsMessage
     | CommitStateMessage
     | RestoreStateMessage
+    | TargetReachedMessage
+    | TargetFailedMessage
     | EndGameMessage
     | CmdGeneratePositionsMessage
     | CmdGetTokensMessage

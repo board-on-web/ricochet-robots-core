@@ -101,6 +101,7 @@ export class GameController {
   }
 
   public setTargetToken(token: BoardToken) {
+    // TODO (2023.02.05): Validate when robot is on target
     this.tc.target = token
     this.board.targetToken = token
   }

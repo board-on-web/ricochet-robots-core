@@ -166,6 +166,7 @@ export class ViewController {
           }
 
           case 'end_round': {
+            this.cancelListeners()
             this.gc.setPhaseEndRound()
             break
           }

@@ -159,8 +159,7 @@ export class ViewController {
             break
           }
 
-          case 'planning':
-          case 'awaiting': {
+          case 'planning': {
             this.cancelListeners()
             break
           }

@@ -27,6 +27,7 @@ export class ViewController {
   private readonly camera = new PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
   private readonly renderer = new WebGLRenderer({
     antialias: true,
+    alpha: true
   })
   private readonly notationsRenderer = new NotationsRenderer()
   private readonly composer = new EffectComposer(this.renderer)

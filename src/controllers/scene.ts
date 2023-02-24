@@ -1,4 +1,3 @@
-import { Easing, Tween } from "@tweenjs/tween.js";
 import { Color, Scene } from "three";
 
 export class SceneController extends Scene {
@@ -9,13 +8,6 @@ export class SceneController extends Scene {
   }
 
   public changeBackground(color: Color = new Color('#D7CCC8')) {
-    if (!this.background) {
-      this.background = color
-    }
-
-    new Tween(this.background)
-      .to(color, 300)
-      .easing(Easing.Linear.None)
-      .start()
+    return
   }
 }
